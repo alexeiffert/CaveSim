@@ -1,3 +1,13 @@
+/*----------------------------------------- 
+*
+*   ClickPanel.java
+*   Alex Eiffert
+*   CAP3027  
+*   2 November, 2017 
+*   "CaveSim" v1.0
+*
+------------------------------------------*/
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;

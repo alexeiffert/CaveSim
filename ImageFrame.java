@@ -1,3 +1,13 @@
+/*----------------------------------------- 
+*
+*   ImagePanel.java
+*   Alex Eiffert
+*   CAP3027  
+*   2 November, 2017 
+*   "CaveSim" v1.0
+*
+------------------------------------------*/
+
 //GUI Support
 import java.awt.*;
 import java.awt.event.*;
