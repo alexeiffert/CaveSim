@@ -46,6 +46,8 @@ class ImageFrame extends JFrame
     //Add menu
     this.addMenu();
     cutscene_ = new Cutscene(screenSize);
+    getContentPane().add(cutscene_, BorderLayout.CENTER);
+    pack();
   }
 
   //Add menu to frame
