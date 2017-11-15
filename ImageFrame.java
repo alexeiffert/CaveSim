@@ -28,7 +28,8 @@ class ImageFrame extends JFrame
   private static final int CANCEL = -123456, DEFAULT = -654321;
 
   private final JFileChooser chooser_;
-  private ClickPanel CAClick_;
+  private final Cutscene cutscene_;
+  private ClickPanel click_;
 
   //Constructor
   public ImageFrame(int width, int height)
@@ -42,8 +43,9 @@ class ImageFrame extends JFrame
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     this.setSize(screenSize);
 
-    //Add menu, ClickPanel, and timer to frame
+    //Add menu
     this.addMenu();
+    cutscene_ = new Cutscene(screenSize);
   }
 
   //Add menu to frame
@@ -67,7 +69,7 @@ class ImageFrame extends JFrame
     fileMenu.add(screenshotItem);
 
     //Add "Save Game" Option
-    JMenuItem saveSystemItem = new JMenuItem("Save Game");
+    JMenuItem saveSystemItem = new JMenuItem("Save Game...");
     saveSystemItem.addActionListener
     (
       new ActionListener()
@@ -75,7 +77,7 @@ class ImageFrame extends JFrame
         public void actionPerformed(ActionEvent e)
         {
           File outputFile = getFile();
-          if(!CAClick_.saveSystem(outputFile))
+          if(true)//TODO
           {
             displayError("Could not load config file. Please " +
                          "make sure file is of the correct type and try again."); 
@@ -86,7 +88,7 @@ class ImageFrame extends JFrame
     fileMenu.add(saveSystemItem);
 
     //Add "Load Game" Option
-    JMenuItem loadSystemItem = new JMenuItem("Load Game");
+    JMenuItem loadSystemItem = new JMenuItem("Load Game...");
     loadSystemItem.addActionListener
     (
       new ActionListener()
@@ -94,7 +96,7 @@ class ImageFrame extends JFrame
         public void actionPerformed(ActionEvent e)
         {
           File inputFile = getFile();
-          if(!CAClick_.loadSystem(inputFile))
+          if(true)//TODO
           {
             displayError("Could not save config file. Please " +
                          "make sure grid is initialized and try again."); 
@@ -120,13 +122,14 @@ class ImageFrame extends JFrame
 */
 
     //Add "Save & Exit" option
-    JMenuItem saveExitItem = new JMenuItem("Save & Exit");
+    JMenuItem saveExitItem = new JMenuItem("Save & Exit...");
     saveExitItem.addActionListener
     (
       new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
+          //TODO
           System.exit(0);
         }
       }
@@ -184,31 +187,6 @@ class ImageFrame extends JFrame
     }
     return val;
   }  // private int getInput()
-
-  //Display dialog and parse input for int value written as 0x hex
-  private int getHex(String message)
-  {
-    int val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-        return CANCEL;  // Cancel
-      else if(input.isEmpty())
-        return DEFAULT;  // Empty
-      else if(input.charAt(1) == 'x' && input.charAt(0) == '0')
-        val = (int)Long.parseLong(input.substring(2, input.length()), 16);
-      else
-        throw new NumberFormatException();
-    }
-    catch(Exception e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid hex input (0x...)", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getHex(message);
-    }
-    return val;
-  }  // int getHex()
 
   //Display dialog and parse input for double
   private double getDbl(String message)
@@ -283,7 +261,7 @@ class ImageFrame extends JFrame
     File outputFile = getFile();
     try
     {
-      javax.imageio.ImageIO.write(CAClick_.getImage(), "png", outputFile);
+      javax.imageio.ImageIO.write(cutscene_.getImage(), "png", outputFile);
     }
     catch (Exception e)
     {

@@ -1,6 +1,6 @@
 /*----------------------------------------- 
 *
-*   ClickPanel.java
+*   Cutscene.java
 *   Alex Eiffert
 *   CAP3027  
 *   2 November, 2017 
@@ -19,24 +19,25 @@ import javax.swing.*;
 import java.util.Random;
 import java.util.Scanner;
 
-public class ClickPanel extends JPanel
+public class Cutscene extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 500;  // i.e. 2 fps
-  private static final int SQUARE_SIZE = 8, GRID_SIZE = 100;
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 16;  // i.e. ~60fps
 
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
+  private String[] strArr_;
 
-  public ClickPanel(int side)  // width = height
+  public Cutscene(Dimension size) 
   {
-    Dimension size = new Dimension(side, side);
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
 
-    img_ = new BufferedImage(side, side, BufferedImage.TYPE_INT_ARGB);
+    img_ = new BufferedImage((int)size.getHeight(), (int)size.getWidth(), 
+                             BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
+    strArr_ = new String[]{"You are a caveman"};
 
     addMouseListener
     (
@@ -44,22 +45,6 @@ public class ClickPanel extends JPanel
       {
         public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
         {
-          final Point p = e.getPoint();
-          if(p.x < 0 || p.x > img_.getWidth() || p.y < 0 || p.y > img_.getHeight())
-            return;
-
-          new Thread
-          (
-            new Runnable()
-            {
-              public void run()
-              {
-                if(e.getButton() == MouseEvent.BUTTON1)  // LMB
-                {
-                } 
-              }
-            }
-          ).start();
         }
       }
     );
@@ -69,40 +54,11 @@ public class ClickPanel extends JPanel
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          //TODO
           timer_.restart();
         }
       }
     );  // new Timer
   }  // public FractalSelectPanel(int, int)
-
-  public boolean loadSystem(File inputFile)
-  {
-    try
-    {
-      Scanner s = new Scanner(new BufferedReader(new FileReader(inputFile)));
-      String str = s.next();
-      return true;
-    }
-    catch(Exception e)
-    {
-      return false;
-    }
-  }
-
-  public boolean saveSystem(File outputFile)
-  {
-    try
-    {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-      writer.close();
-      return true;
-    }
-    catch(Exception e)
-    {
-      return false;
-    }
-  }
 
 /*
   public boolean togglePlay()
@@ -115,6 +71,13 @@ public class ClickPanel extends JPanel
     return isPlay_;
   }
 */
+
+  private void dispText()
+  {
+    g2d_.setColor(Color.RED);
+    g2d_.setFont(new Font( "SansSerif", Font.BOLD, 12 ));
+    g2d_.drawString(strArr_[0], 100, 100);
+  }
 
   public BufferedImage getImage()
   {
@@ -147,4 +110,3 @@ public class ClickPanel extends JPanel
   }
 
 }  // class ClickPanel
-
