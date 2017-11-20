@@ -21,7 +21,7 @@ import java.util.Scanner;
 
 public class Cutscene extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 700;  // i.e. ~60fps
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 500;  // i.e. ~60fps
 
   private BufferedImage img_;
   private Graphics2D g2d_;
@@ -41,11 +41,12 @@ public class Cutscene extends JPanel
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
     changeBackground(Color.BLACK);
-    strArr_ = new String[]{"\"The caveman is a stock character", "\"based upon widespread",
-                           "\"but ANACHRONISTIC and", "\"CONFLATED concepts", "\"of the way in which", 
-                           "\"Neanderthals,", "\"early modern humans,", "\"or archaic humans", 
-                           "\"may have looked and behaved...", "...", "But he doesn't care about that."
-                           , "Now, YOU are the caveman", "CaveSim"};
+    strArr_ = new String[]{"\"The caveman is a stock character", "\"based upon widespread but",
+                           "\"ANACHRONISTIC", "\"and", "\"CONFLATED", "\"concepts", "\"of the way in which", 
+                           "\"Neanderthals,", "\"early modern humans,", "\"and archaic humans", 
+                           "\"may have looked and behaved...", "But he doesn't care about that", 
+                           "But he doesn't care about that.", "Now, YOU are the caveman", 
+                           "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim"};
     index_ = x_ = 0;
     isDraw_ = isPlay_ = false;
     addMouseListener
@@ -107,16 +108,16 @@ public class Cutscene extends JPanel
   private void dispText()
   {
     g2d_.setXORMode(Color.WHITE);
-    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100 ));
-    g2d_.drawString(strArr_[index_], x_, 100);
+    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 75 ));
+    g2d_.drawString(strArr_[index_], x_, img_.getHeight()/2);
     g2d_.setPaintMode();
   }
 
   private void errText()
   {
     g2d_.setXORMode(Color.WHITE);
-    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
-    g2d_.drawString(strArr_[index_++], x_, 100);
+    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 75));
+    g2d_.drawString(strArr_[index_++], x_, img_.getHeight()/2);
     g2d_.setPaintMode();
   }
 
