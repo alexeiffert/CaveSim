@@ -1,3 +1,13 @@
+/*----------------------------------------- 
+*
+*   ClickPanel.java
+*   Alex Eiffert
+*   CAP3027  
+*   2 November, 2017 
+*   "CaveSim" v1.0
+*
+------------------------------------------*/
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -17,8 +27,6 @@ public class ClickPanel extends JPanel
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
-  private char[][] creatures_;
-  private boolean isPlay_, isReady_;
 
   public ClickPanel(int side)  // width = height
   {
@@ -29,8 +37,6 @@ public class ClickPanel extends JPanel
 
     img_ = new BufferedImage(side, side, BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
-    creatures_ = new char[GRID_SIZE][GRID_SIZE];
-    isPlay_ = isReady_ = false;
 
     addMouseListener
     (
@@ -38,8 +44,6 @@ public class ClickPanel extends JPanel
       {
         public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
         {
-          if(!isReady_) 
-            return;
           final Point p = e.getPoint();
           if(p.x < 0 || p.x > img_.getWidth() || p.y < 0 || p.y > img_.getHeight())
             return;
@@ -52,11 +56,6 @@ public class ClickPanel extends JPanel
               {
                 if(e.getButton() == MouseEvent.BUTTON1)  // LMB
                 {
-                  if(!isPlay_)
-                  {
-                    int square = getSquare(p);
-                    ageSquare(square);
-                  }
                 } 
               }
             }
@@ -70,8 +69,7 @@ public class ClickPanel extends JPanel
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          letThereBeLife();
-          setImage();
+          //TODO
           timer_.restart();
         }
       }
@@ -84,14 +82,6 @@ public class ClickPanel extends JPanel
     {
       Scanner s = new Scanner(new BufferedReader(new FileReader(inputFile)));
       String str = s.next();
-      for(int i = 0; i < GRID_SIZE; ++i)
-      {
-        for(int j = 0; j < GRID_SIZE; ++j)
-        {
-          creatures_[i][j] = str.charAt(i*GRID_SIZE + j);
-        }
-      } 
-      showGrid();
       return true;
     }
     catch(Exception e)
@@ -102,13 +92,9 @@ public class ClickPanel extends JPanel
 
   public boolean saveSystem(File outputFile)
   {
-    if(!isReady_)
-      return false;
     try
     {
       BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-      for(int i = 0; i < GRID_SIZE; ++i)
-        writer.write(new String(creatures_[i]));
       writer.close();
       return true;
     }
@@ -118,6 +104,7 @@ public class ClickPanel extends JPanel
     }
   }
 
+/*
   public boolean togglePlay()
   {
     isPlay_ = !isPlay_;
@@ -127,6 +114,7 @@ public class ClickPanel extends JPanel
       timer_.stop();
     return isPlay_;
   }
+*/
 
   public BufferedImage getImage()
   {
@@ -159,3 +147,4 @@ public class ClickPanel extends JPanel
   }
 
 }  // class ClickPanel
+
