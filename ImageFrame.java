@@ -49,8 +49,8 @@ class ImageFrame extends JFrame
     this.addMenu();
 
     //Add and play Cutscene
-    //this.addCutscene(screenSize);
-    this.addMenu(screenSize);
+    this.addCutscene(screenSize);
+    //this.addMenu(screenSize);
   }
 
   //Add menu to frame
