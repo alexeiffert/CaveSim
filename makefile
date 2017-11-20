@@ -8,7 +8,8 @@ CLASSES = \
 	CaveSim.java \
 	ClickPanel.java \
 	Cutscene.java \
-	ImageFrame.java 
+	ImageFrame.java \
+        Menu.java
 
 default: classes
 

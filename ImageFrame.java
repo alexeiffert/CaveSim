@@ -28,7 +28,8 @@ class ImageFrame extends JFrame
   private static final int CANCEL = -123456, DEFAULT = -654321;
 
   private final JFileChooser chooser_;
-  private final Cutscene cutscene_;
+  private Cutscene cutscene_;
+  private Menu menu_;
   private ClickPanel click_;
 
   //Constructor
@@ -41,13 +42,15 @@ class ImageFrame extends JFrame
     //Set frame attributes
     this.setTitle("CaveSim v1.0");
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    screenSize.setSize(screenSize.getWidth()/2, screenSize.getHeight()/2);
     this.setSize(screenSize);
 
     //Add menu
     this.addMenu();
-    cutscene_ = new Cutscene(screenSize);
-    getContentPane().add(cutscene_, BorderLayout.CENTER);
-    pack();
+
+    //Add and play Cutscene
+    //this.addCutscene(screenSize);
+    this.addMenu(screenSize);
   }
 
   //Add menu to frame
@@ -157,6 +160,22 @@ class ImageFrame extends JFrame
     menuBar.add(fileMenu);
     this.setJMenuBar(menuBar);
   }  // private void addMenu()
+
+  private void addCutscene(Dimension size)
+  { 
+    cutscene_ = new Cutscene(size);
+    getContentPane().add(cutscene_, BorderLayout.CENTER);
+    pack();
+    cutscene_.togglePlay();
+  }
+ 
+  private void addMenu(Dimension size)
+  {
+    menu_ = new Menu(size);
+    getContentPane().add(menu_, BorderLayout.CENTER);
+    pack();
+    menu_.togglePlay();
+  }
 
   //---------------------------------------------------------------------//
   //-------------------------- Helper Functions -------------------------//

@@ -21,7 +21,7 @@ import java.util.Scanner;
 
 public class Cutscene extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 700;//16;  // i.e. ~60fps
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 700;  // i.e. ~60fps
 
   private BufferedImage img_;
   private Graphics2D g2d_;
@@ -40,12 +40,12 @@ public class Cutscene extends JPanel
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), 
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
-    changeBackground(Color.WHITE);
+    changeBackground(Color.BLACK);
     strArr_ = new String[]{"\"The caveman is a stock character", "\"based upon widespread",
                            "\"but ANACHRONISTIC and", "\"CONFLATED concepts", "\"of the way in which", 
-                           "\"Neanderthals,", "\"early modern humans,", "\"or archaic humans", "\"may have looked and behaved...",
-                           "...", "....", ".....", "......", "........", "........", "But is there more to it",
-                           "than THAT?", "CaveSim \nYOU are the caveman"};
+                           "\"Neanderthals,", "\"early modern humans,", "\"or archaic humans", 
+                           "\"may have looked and behaved...", "...", "But he doesn't care about that."
+                           , "Now, YOU are the caveman", "CaveSim"};
     index_ = x_ = 0;
     isDraw_ = isPlay_ = false;
     addMouseListener
@@ -54,7 +54,6 @@ public class Cutscene extends JPanel
       {
         public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
         {
-          close();
         }
       }
     );
@@ -65,17 +64,22 @@ public class Cutscene extends JPanel
         {
           timer_.stop();
           if(toggleDraw())
-            errText();
-          else
+          {
             dispText();
-          setImage();
+            setImage();
+          }
+          else
+          {
+            errText();
+          }
           timer_.restart();
-          if(index_ == strArr_.length - 2)
-            close();
+          if(index_ == strArr_.length)
+          {
+            timer_.stop();
+          }
         }
       }
     );  // new Timer
-    togglePlay();
   }  // public FractalSelectPanel(int, int)
 
   public boolean togglePlay()
@@ -102,18 +106,17 @@ public class Cutscene extends JPanel
 
   private void dispText()
   {
-    g2d_.setXORMode(Color.BLACK);
+    g2d_.setXORMode(Color.WHITE);
     g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100 ));
     g2d_.drawString(strArr_[index_], x_, 100);
     g2d_.setPaintMode();
-    index_ = (index_ + 1) % strArr_.length;
   }
 
   private void errText()
   {
-    g2d_.setXORMode(Color.BLACK);
+    g2d_.setXORMode(Color.WHITE);
     g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
-    g2d_.drawString(strArr_[index_], x_, 100);
+    g2d_.drawString(strArr_[index_++], x_, 100);
     g2d_.setPaintMode();
   }
 
