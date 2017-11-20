@@ -49,8 +49,14 @@ class ImageFrame extends JFrame
     this.addMenu();
 
     //Add and play Cutscene
-    this.addCutscene(screenSize);
+    //this.addCutscene(screenSize);
     //this.addMenu(screenSize);
+
+    FireMinigame fire = new FireMinigame(screenSize);
+    getContentPane().add(fire, BorderLayout.CENTER);
+    pack();
+    fire.setFocusable(true); 
+
   }
 
   //Add menu to frame
