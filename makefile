@@ -9,7 +9,8 @@ CLASSES = \
 	ClickPanel.java \
 	Cutscene.java \
 	ImageFrame.java \
-        Menu.java
+        Menu.java \
+        FireMinigame.java
 
 default: classes
 
