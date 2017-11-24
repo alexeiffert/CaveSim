@@ -41,10 +41,15 @@ public class FireMinigame extends JPanel
     g2d_ = (Graphics2D)img_.createGraphics();
     try
     {
-      BufferedImage fire = ImageIO.read(new File("fire.png"));
-      g2d_.drawImage(fire,
-                     0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                     0, 0, (fire.getWidth() - 1), (fire.getHeight() - 1),
+      BufferedImage fire0 = ImageIO.read(new File("fire0.png"));
+      g2d_.drawImage(fire0,
+                     0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                     0, 0, (fire0.getWidth() - 1), (fire0.getHeight() - 1),
+                     Color.BLACK, null); 
+      BufferedImage fire1 = ImageIO.read(new File("fire1.png"));
+      g2d_.drawImage(fire1,
+                     0, 0, (img_.getWidth() - 1), (int)((img_.getHeight() - 1)/1.06),
+                     0, 0, (fire1.getWidth() - 1), (fire1.getHeight() - 1),
                      Color.BLACK, null); 
       repaint();
     }
@@ -62,10 +67,14 @@ public class FireMinigame extends JPanel
           if(e.getKeyCode() == KeyEvent.VK_LEFT)
           {
             System.out.println(--position_);
+            if(position_ < -20)
+              position_ = -20;
           }
           else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
           {
             System.out.println(++position_);
+            if(position_ > 45)
+              position_ = 45;
           }
         }
       }
@@ -105,10 +114,24 @@ public class FireMinigame extends JPanel
         {
           timer_.stop();
           //TODO
+    try
+    {
+      BufferedImage fire1 = ImageIO.read(new File("fire1.png"));
+      g2d_.drawImage(fire1,
+                     position_*10, 0, (img_.getWidth() - 1), (int)((img_.getHeight() - 1)/1.06),
+                     0, 0, (fire1.getWidth() - 1), (fire1.getHeight() - 1),
+                     Color.BLACK, null); 
+      repaint();
+    }
+    catch(IOException exc)
+    {
+      System.out.println("Menu image missing");
+    }
           timer_.restart();
         }
       }
     );  // new Timer
+    timer_.start();
   }  // public FireMinigame(Dimension)
 
 /*

@@ -56,13 +56,15 @@ class ImageFrame extends JFrame
     getContentPane().add(fire, BorderLayout.CENTER);
     pack();
     fire.setFocusable(true); 
-
   }
 
   //Add menu to frame
   private void addMenu()
   {
-    //Frame menu bar
+    //-----------------------------------------------//
+    //------------------File Menu--------------------//
+    //-----------------------------------------------//
+
     JMenu fileMenu = new JMenu("File");
 
     //Add "Screenshot" option
@@ -161,9 +163,28 @@ class ImageFrame extends JFrame
     );
     fileMenu.add(exitItem);
 
+    //---------------------------------------------------------//
+    //-------------------- Help Menu --------------------------//
+    //---------------------------------------------------------//
+
+    JMenu helpMenu = new JMenu("Help");
+
+    JMenuItem rulesItem = new JMenuItem("Rules");
+    rulesItem.addActionListener
+    (
+      new ActionListener() 
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+        }
+      }
+     );
+     helpMenu.add(rulesItem);
+
     //Add menu to a menu bar and add to this
     JMenuBar menuBar = new JMenuBar();
     menuBar.add(fileMenu);
+    menuBar.add(helpMenu);
     this.setJMenuBar(menuBar);
   }  // private void addMenu()
 
