@@ -30,6 +30,7 @@ class ImageFrame extends JFrame
   private final JFileChooser chooser_;
   private Cutscene cutscene_;
   private Menu menu_;
+  private FireMinigame fire_;
   private ClickPanel click_;
 
   //Constructor
@@ -51,30 +52,38 @@ class ImageFrame extends JFrame
     //Add game components
     this.addCutscene(screenSize);
     this.addGameMenu(screenSize);
+    this.addFireMinigame(screenSize);
   }
 
    public void startCaveSim()
    {
-    cutscene_.togglePlay();
-    while(!cutscene_.Done())
-    {
-      try        
-      {
-        Thread.sleep(200);
-      } 
-      catch(InterruptedException ex) 
-      {
-        Thread.currentThread().interrupt();
-      }
-    }
-    menu_.togglePlay();
 /*
-    FireMinigame fire = new FireMinigame(screenSize);
-    getContentPane().add(fire, BorderLayout.CENTER);
-    pack();
-    fire.setFocusable(true); 
+     cutscene_.togglePlay();
+     while(!cutscene_.Done())
+     {
+       try        
+       {
+         Thread.sleep(200);
+       }  
+       catch(InterruptedException ex) 
+       {
+         Thread.currentThread().interrupt();
+       }
+     }
+     menu_.togglePlay();
+     while(!menu_.Done())
+     {
+       try        
+       {
+         Thread.sleep(200);
+       } 
+       catch(InterruptedException ex) 
+       {
+         Thread.currentThread().interrupt();
+       }
+     }
 */
-     
+     fire_.togglePlay();
    }
 
   //Add menu to frame
@@ -223,6 +232,14 @@ class ImageFrame extends JFrame
     menu_ = new Menu(size);
     getContentPane().add(menu_, BorderLayout.CENTER);
     pack();
+  }
+
+  private void addFireMinigame(Dimension size)
+  {
+    fire_ = new FireMinigame(size);
+    getContentPane().add(fire_, BorderLayout.CENTER);
+    pack();
+    fire_.setFocusable(true); 
   }
 
   //Display dialog and parse input for int value

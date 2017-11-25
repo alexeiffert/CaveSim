@@ -1,6 +1,6 @@
 /*----------------------------------------- 
 *
-*   FireMiniGame.java
+*   FireMinigame.java
 *   Alex Eiffert
 *   CAP3027  
 *   2 November, 2017 
@@ -26,6 +26,7 @@ public class FireMinigame extends JPanel
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
+  private boolean isPlay_;
 
   private double ambient_;
   private double temp_;
@@ -38,6 +39,8 @@ public class FireMinigame extends JPanel
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
+
+    isPlay_ = false;
     
     Random rng = new Random();
     ambient_ = temp_ = rng.nextDouble()*110 - 10;
@@ -111,16 +114,16 @@ public class FireMinigame extends JPanel
           timer_.stop();
           g2d_.drawImage(fire[1],
                          position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
-                         0, 0, (fire[1].getWidth() - 1), (fire[1].getHeight() - 1),
+                         0, 0, fire[1].getWidth(), fire[1].getHeight(),
                          Color.BLACK, null); 
           if(temp_ > 800)
           {
             g2d_.drawImage(fire[2],
                            position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
-                           0, 0, (fire[1].getWidth() - 1), (fire[1].getHeight() - 1),
+                           0, 0, fire[1].getWidth(), fire[1].getHeight(),
                            Color.BLACK, null); 
             g2d_.setColor(Color.BLACK);
-            g2d_.drawString("Press 'F' to add kindling", 50, 250);
+            g2d_.drawString("Press 'F' to add kindling!", 50, 250);
           }
           g2d_.setColor(Color.BLACK);
           g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
@@ -147,7 +150,6 @@ public class FireMinigame extends JPanel
         }
       }
     );  // new Timer
-    timer_.start();
 
     //Approximation of Newton's Law of Cooling
     Timer tempTimer = new Timer(250, new ActionListener()
@@ -197,12 +199,15 @@ public class FireMinigame extends JPanel
           {
             if(temp_ > 800)
             {
+              if(rng.nextDouble() > .5)
+                System.out.println("You smothered the fire.");
               timer_.stop();
               tempTimer.stop();
-    g2d_.drawImage(fire[3],
-                   0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                   0, 0, (fire[3].getWidth() - 1), (fire[3].getHeight() - 1),
-                   Color.BLACK, null); 
+              g2d_.drawImage(fire[3],
+                             0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                             0, 0, fire[3].getWidth(), fire[3].getHeight(),
+                             Color.BLACK, null); 
+              repaint();
             }
           }
         }
@@ -244,7 +249,6 @@ public class FireMinigame extends JPanel
 */
   }  // public FireMinigame(Dimension)
 
-/*
   public boolean togglePlay()
   {
     isPlay_ = !isPlay_;
@@ -254,7 +258,6 @@ public class FireMinigame extends JPanel
       timer_.stop();
     return isPlay_;
   }
-*/
 
   public BufferedImage getImage()
   {

@@ -28,7 +28,7 @@ public class Menu extends JPanel
   private Timer timer_;
   private Color[] colorArr_;
   private int index_;
-  private boolean isDraw_, isPlay_;
+  private boolean isDraw_, isPlay_, isDone_;
 
   public Menu(Dimension size) 
   {
@@ -41,7 +41,7 @@ public class Menu extends JPanel
     g2d_ = (Graphics2D)img_.createGraphics();
     colorArr_ = getGreys(100);
     index_ = -1;
-    isDraw_ = isPlay_ = false;
+    isDraw_ = isPlay_ = isDone_ = false;
     addMouseListener
     (
       new MouseAdapter()
@@ -83,11 +83,17 @@ public class Menu extends JPanel
             timer_.stop();
             drawMenu();
             setImage();
+            isDone_ = true;
           }
         }
       }
     );  // new Timer
   }  // public Menu(Dimension)
+
+  public boolean Done()
+  {
+    return isDone_;
+  }
 
   public boolean togglePlay()
   {
