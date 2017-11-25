@@ -45,6 +45,8 @@ class ImageFrame extends JFrame
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     screenSize.setSize(screenSize.getWidth()/2, screenSize.getHeight()/2);
     this.setSize(screenSize);
+    ImageIcon icon = new ImageIcon("img/neanderthal.png");  // Set icon
+    this.setIconImage(icon.getImage());
 
     //Add menu bar
     this.addMenu();

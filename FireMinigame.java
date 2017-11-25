@@ -30,9 +30,8 @@ public class FireMinigame extends JPanel
 
   private double ambient_;
   private double temp_;
+  private double acceleration_, velocity_;
   private int position_;
-  private double velocity_;
-  private boolean isLeft_;
 
   public FireMinigame(Dimension size)
   {
@@ -82,8 +81,7 @@ public class FireMinigame extends JPanel
       weatherClr = Color.BLUE;
     }
     position_ = 0;
-    velocity_ = 0;
-    isLeft_ = false;
+    velocity_ = acceleration_ = 0;
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(),
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
@@ -102,20 +100,44 @@ public class FireMinigame extends JPanel
       System.out.println("ERROR: Image(s) missing from img/ directory");
       System.exit(-1);
     }
-    g2d_.drawImage(fire[0],
-                   0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                   0, 0, (fire[0].getWidth() - 1), (fire[0].getHeight() - 1),
-                   Color.BLACK, null); 
 
     timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
+          changeBackground(Color.WHITE); 
+          //Calculate position, etc., then draw
+          velocity_ += acceleration_;
+          temp_ += .2*Math.abs(velocity_);
+          position_ += (int)velocity_;
+          if(velocity_ != 0 || acceleration_ != 0)
+          {
+            velocity_ *= .999;
+            acceleration_ *= .85;
+          }
+          if(position_ > 500)
+          {
+            position_ = 500;
+            velocity_ = -1*velocity_;
+            acceleration_ = 0;
+          }
+          else if(position_ < -125)
+          {
+            position_ = -125;
+            velocity_ = -1*velocity_;
+            acceleration_ = 0;
+          }
+          g2d_.drawImage(fire[0],
+                         0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                         0, 0, (fire[0].getWidth() - 1), (fire[0].getHeight() - 1),
+                         Color.BLACK, null); 
           g2d_.drawImage(fire[1],
-                         position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
+                         position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.065),
                          0, 0, fire[1].getWidth(), fire[1].getHeight(),
                          Color.BLACK, null); 
+
+          //Text display, etc.
           if(temp_ > 800)
           {
             g2d_.drawImage(fire[2],
@@ -140,7 +162,7 @@ public class FireMinigame extends JPanel
           else
             fireClr = Color.BLUE;
           g2d_.setColor(fireClr);
-          g2d_.drawString("" + Math.round(temp_*100)/100 + "\u00b0F", 350, 150);
+          g2d_.drawString(Math.round(temp_) + "\u00b0F", 350, 150);
           g2d_.setColor(Color.BLACK);
           g2d_.drawString("Today's Weather:", 50, 100);
           g2d_.setColor(weatherClr);
@@ -151,12 +173,12 @@ public class FireMinigame extends JPanel
       }
     );  // new Timer
 
-    //Approximation of Newton's Law of Cooling
+    //Loose approximation of Newton's Law of Cooling
     Timer tempTimer = new Timer(250, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
-          temp_ += -.01*(temp_ - ambient_);  
+          temp_ += -.07*(temp_ - ambient_);  
         }
       }
     );
@@ -168,38 +190,19 @@ public class FireMinigame extends JPanel
       {
         public void keyPressed(KeyEvent e)
         {
-          System.out.println(position_);
           if(e.getKeyCode() == KeyEvent.VK_LEFT)
           {
-            if(isLeft_)
-              velocity_ += .1;
-            position_ = (int)(position_ - 2*velocity_);
-            if(position_ < -125)
-            {
-              position_ = -125;
-              velocity_ = 1;
-            }
-            isLeft_ = true;
-            temp_ += velocity_/2;
+            acceleration_ -= .1;
           }
           else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
           {
-            if(!isLeft_)
-              velocity_ += .1;
-            position_ = (int)(position_ + 2*velocity_);
-            if(position_ > 350)
-            {
-              position_ = 350;
-              velocity_ = 1;
-            }
-            isLeft_ = false;
-            temp_ += velocity_/2;
+            acceleration_ += .1;
           }
           else if(e.getKeyCode() == KeyEvent.VK_F)
           {
             if(temp_ > 800)
             {
-              if(rng.nextDouble() > .5)
+              if(rng.nextDouble() > .9)
                 System.out.println("You smothered the fire.");
               timer_.stop();
               tempTimer.stop();
@@ -213,8 +216,6 @@ public class FireMinigame extends JPanel
         }
         public void keyReleased(KeyEvent e)
         {
-          //if(position_ < 
-          velocity_ = 1;
         }
       }
     );
@@ -259,6 +260,12 @@ public class FireMinigame extends JPanel
     return isPlay_;
   }
 
+  private void changeBackground(Color color)
+  {
+    g2d_.setColor(color);
+    g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+  }
+
   public BufferedImage getImage()
   {
     return img_;
@@ -289,5 +296,5 @@ public class FireMinigame extends JPanel
     g.drawImage(img_, 0, 0, null);
   }
 
-}  // class ClickPanel
+}  // class FireMinigame 
 
