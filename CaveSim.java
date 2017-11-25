@@ -38,18 +38,29 @@ public class CaveSim
       {
         public void run()
         {
-          createGUI();
+          ImageFrame frame = createGUI();
         }
       }
     );
   }  // public static void main() 
 
-  public static void createGUI()
+  public static ImageFrame createGUI()
   {
-    JFrame frame = new ImageFrame(WIDTH, HEIGHT);
+    ImageFrame frame = new ImageFrame(WIDTH, HEIGHT);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setVisible(true);
     frame.setResizable(false);
+    new Thread
+    (
+      new Runnable()
+      {
+        public void run()
+        {
+          frame.startCaveSim();
+        }
+      }
+    ).start();
+    return frame;
   }
 }  // class CaveSim 
 

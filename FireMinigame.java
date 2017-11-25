@@ -86,12 +86,13 @@ public class FireMinigame extends JPanel
     g2d_ = (Graphics2D)img_.createGraphics();
 
     //Images array
-    BufferedImage fire[] = new BufferedImage[3];
+    BufferedImage fire[] = new BufferedImage[4];
     try
     {
       fire[0] = ImageIO.read(new File("img/fire0.png"));
       fire[1] = ImageIO.read(new File("img/fire1.png"));
       fire[2] = ImageIO.read(new File("img/fire2.png"));
+      fire[3] = ImageIO.read(new File("img/fire3.png"));
     }
     catch(IOException e)
     {
@@ -112,6 +113,15 @@ public class FireMinigame extends JPanel
                          position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
                          0, 0, (fire[1].getWidth() - 1), (fire[1].getHeight() - 1),
                          Color.BLACK, null); 
+          if(temp_ > 800)
+          {
+            g2d_.drawImage(fire[2],
+                           position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
+                           0, 0, (fire[1].getWidth() - 1), (fire[1].getHeight() - 1),
+                           Color.BLACK, null); 
+            g2d_.setColor(Color.BLACK);
+            g2d_.drawString("Press 'F' to add kindling", 50, 250);
+          }
           g2d_.setColor(Color.BLACK);
           g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
           g2d_.drawString("Fire Plow: ", 50, 150); 
@@ -182,6 +192,18 @@ public class FireMinigame extends JPanel
             }
             isLeft_ = false;
             temp_ += velocity_/2;
+          }
+          else if(e.getKeyCode() == KeyEvent.VK_F)
+          {
+            if(temp_ > 800)
+            {
+              timer_.stop();
+              tempTimer.stop();
+    g2d_.drawImage(fire[3],
+                   0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                   0, 0, (fire[3].getWidth() - 1), (fire[3].getHeight() - 1),
+                   Color.BLACK, null); 
+            }
           }
         }
         public void keyReleased(KeyEvent e)

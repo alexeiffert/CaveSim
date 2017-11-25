@@ -21,7 +21,7 @@ import java.util.Scanner;
 
 public class Cutscene extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 500;  // i.e. ~60fps
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 250;  
 
   private BufferedImage img_;
   private Graphics2D g2d_;
@@ -29,7 +29,7 @@ public class Cutscene extends JPanel
   private String[] strArr_;
   private int index_;
   private int x_;
-  private boolean isDraw_, isPlay_;
+  private boolean isDraw_, isPlay_, isDone_;
 
   public Cutscene(Dimension size) 
   {
@@ -41,14 +41,23 @@ public class Cutscene extends JPanel
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
     changeBackground(Color.BLACK);
-    strArr_ = new String[]{"\"The caveman is a stock character", "\"based upon widespread but",
-                           "\"ANACHRONISTIC", "\"and", "\"CONFLATED", "\"concepts", "\"of the way in which", 
-                           "\"Neanderthals,", "\"early modern humans,", "\"and archaic humans", 
-                           "\"may have looked and behaved...", "But he doesn't care about that", 
-                           "But he doesn't care about that.", "Now, YOU are the caveman", 
-                           "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim"};
+    strArr_ = new String[]{"\"The caveman is a stock character", "\"The caveman is a stock character", 
+                           "\"based upon widespread but", "\"based upon widespread but",
+                           "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
+                           "\"and", "\"and", 
+                           "\"CONFLATED", "\"CONFLATED", 
+                           "\"concepts", "\"concepts", 
+                           "\"of the way in which", "\"of the way in which", 
+                           "\"Neanderthals,", "\"Neanderthals,",
+                           "\"early modern humans,", "\"early modern humans,", 
+                           "\"and archaic humans", "\"and archaic humans",
+                           "\"may have looked and behaved...", "\"may have looked and behaved...",
+                           "But he doesn't care about that", "But he doesn't care about that", 
+                             "But he doesn't care about that", 
+                           "Now, YOU are the caveman", "Now, YOU are the caveman", 
+                           "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim", " CaveSim", "  CaveSim"};
     index_ = x_ = 0;
-    isDraw_ = isPlay_ = false;
+    isDraw_ = isPlay_ = isDone_ = false;
     addMouseListener
     (
       new MouseAdapter()
@@ -77,11 +86,17 @@ public class Cutscene extends JPanel
           if(index_ == strArr_.length)
           {
             timer_.stop();
+            isDone_ = true;
           }
         }
       }
     );  // new Timer
   }  // public FractalSelectPanel(int, int)
+
+  public boolean Done()
+  {
+    return isDone_;
+  }
 
   public boolean togglePlay()
   {
