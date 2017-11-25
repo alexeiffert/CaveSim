@@ -172,7 +172,7 @@ public class Menu extends JPanel
     g2d_.drawString("- About", img_.getWidth()/4, img_.getHeight()/4 + 600);
     try
     {
-      BufferedImage neanderthal = ImageIO.read(new File("neanderthal.png"));
+      BufferedImage neanderthal = ImageIO.read(new File("img/neanderthal.png"));
       g2d_.drawImage(neanderthal,
                      50, 350, 1200, (img_.getHeight() - 1),
                      0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),

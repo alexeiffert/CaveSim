@@ -27,7 +27,11 @@ public class FireMinigame extends JPanel
   private Graphics2D g2d_;
   private Timer timer_;
 
+  private double ambient_;
+  private double temp_;
   private int position_;
+  private double velocity_;
+  private boolean isLeft_;
 
   public FireMinigame(Dimension size)
   {
@@ -35,47 +39,155 @@ public class FireMinigame extends JPanel
     setMaximumSize(size);
     setPreferredSize(size);
     
+    Random rng = new Random();
+    ambient_ = temp_ = rng.nextDouble()*110 - 10;
+    String weatherStr;
+    Color weatherClr;
+    if(ambient_ > 90)
+    {
+      weatherStr = "Blazing hot!";
+      weatherClr = Color.RED;
+    }
+    else if(ambient_ > 76)
+    {
+      weatherStr = "Hot";
+      weatherClr = Color.ORANGE;
+    }
+    else if(ambient_ > 66)
+    {
+      weatherStr = "Cool";
+      weatherClr = Color.GREEN;
+    }
+    else if(ambient_ > 50)
+    {
+      weatherStr = "Chilly";
+      weatherClr = new Color(50, 50, 100);
+    }
+    else if(ambient_ > 32)
+    {
+      weatherStr = "Cold";
+      weatherClr = new Color(50, 50, 150);
+    }
+    else if(ambient_ > 0)
+    {
+      weatherStr = "Freezing!";
+      weatherClr = new Color(50, 50, 200);
+    }
+    else
+    {
+      weatherStr = "Below zero!";
+      weatherClr = Color.BLUE;
+    }
     position_ = 0;
+    velocity_ = 0;
+    isLeft_ = false;
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(),
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
+
+    //Images array
+    BufferedImage fire[] = new BufferedImage[3];
     try
     {
-      BufferedImage fire0 = ImageIO.read(new File("fire0.png"));
-      g2d_.drawImage(fire0,
-                     0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                     0, 0, (fire0.getWidth() - 1), (fire0.getHeight() - 1),
-                     Color.BLACK, null); 
-      BufferedImage fire1 = ImageIO.read(new File("fire1.png"));
-      g2d_.drawImage(fire1,
-                     0, 0, (img_.getWidth() - 1), (int)((img_.getHeight() - 1)/1.06),
-                     0, 0, (fire1.getWidth() - 1), (fire1.getHeight() - 1),
-                     Color.BLACK, null); 
-      repaint();
+      fire[0] = ImageIO.read(new File("img/fire0.png"));
+      fire[1] = ImageIO.read(new File("img/fire1.png"));
+      fire[2] = ImageIO.read(new File("img/fire2.png"));
     }
-    catch(IOException exc)
+    catch(IOException e)
     {
-      System.out.println("Menu image missing");
+      System.out.println("ERROR: Image(s) missing from img/ directory");
+      System.exit(-1);
     }
+    g2d_.drawImage(fire[0],
+                   0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                   0, 0, (fire[0].getWidth() - 1), (fire[0].getHeight() - 1),
+                   Color.BLACK, null); 
+
+    timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          timer_.stop();
+          g2d_.drawImage(fire[1],
+                         position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
+                         0, 0, (fire[1].getWidth() - 1), (fire[1].getHeight() - 1),
+                         Color.BLACK, null); 
+          g2d_.setColor(Color.BLACK);
+          g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
+          g2d_.drawString("Fire Plow: ", 50, 150); 
+          Color fireClr;
+          if(temp_ > 700)
+            fireClr = Color.RED;
+          else if(temp_ > 500)
+            fireClr = Color.ORANGE;
+          else if(temp_ > 300)
+            fireClr = Color.YELLOW;
+          else if(temp_ > 150)
+            fireClr = new Color(50, 50, 255);
+          else
+            fireClr = Color.BLUE;
+          g2d_.setColor(fireClr);
+          g2d_.drawString("" + Math.round(temp_*100)/100 + "\u00b0F", 350, 150);
+          g2d_.setColor(Color.BLACK);
+          g2d_.drawString("Today's Weather:", 50, 100);
+          g2d_.setColor(weatherClr);
+          g2d_.drawString(weatherStr, 545, 100);
+          repaint();
+          timer_.restart();
+        }
+      }
+    );  // new Timer
+    timer_.start();
+
+    //Approximation of Newton's Law of Cooling
+    Timer tempTimer = new Timer(250, new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          temp_ += -.01*(temp_ - ambient_);  
+        }
+      }
+    );
+    tempTimer.start();
 
     addKeyListener
     (
       new KeyAdapter()
       {
-        public void keyReleased(KeyEvent e)
+        public void keyPressed(KeyEvent e)
         {
+          System.out.println(position_);
           if(e.getKeyCode() == KeyEvent.VK_LEFT)
           {
-            System.out.println(--position_);
-            if(position_ < -20)
-              position_ = -20;
+            if(isLeft_)
+              velocity_ += .1;
+            position_ = (int)(position_ - 2*velocity_);
+            if(position_ < -125)
+            {
+              position_ = -125;
+              velocity_ = 1;
+            }
+            isLeft_ = true;
+            temp_ += velocity_/2;
           }
           else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
           {
-            System.out.println(++position_);
-            if(position_ > 45)
-              position_ = 45;
+            if(!isLeft_)
+              velocity_ += .1;
+            position_ = (int)(position_ + 2*velocity_);
+            if(position_ > 350)
+            {
+              position_ = 350;
+              velocity_ = 1;
+            }
+            isLeft_ = false;
+            temp_ += velocity_/2;
           }
+        }
+        public void keyReleased(KeyEvent e)
+        {
+          //if(position_ < 
+          velocity_ = 1;
         }
       }
     );
@@ -108,30 +220,6 @@ public class FireMinigame extends JPanel
     );
 
 */
-    timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          timer_.stop();
-          //TODO
-    try
-    {
-      BufferedImage fire1 = ImageIO.read(new File("fire1.png"));
-      g2d_.drawImage(fire1,
-                     position_*10, 0, (img_.getWidth() - 1), (int)((img_.getHeight() - 1)/1.06),
-                     0, 0, (fire1.getWidth() - 1), (fire1.getHeight() - 1),
-                     Color.BLACK, null); 
-      repaint();
-    }
-    catch(IOException exc)
-    {
-      System.out.println("Menu image missing");
-    }
-          timer_.restart();
-        }
-      }
-    );  // new Timer
-    timer_.start();
   }  // public FireMinigame(Dimension)
 
 /*
@@ -161,7 +249,7 @@ public class FireMinigame extends JPanel
         public void run()
         {
           g2d_.drawImage(img_,
-                         0, 0, 799, 799,
+                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
                          0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
                          Color.BLACK, null);
           repaint();

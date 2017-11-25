@@ -49,6 +49,7 @@ public class CaveSim
     JFrame frame = new ImageFrame(WIDTH, HEIGHT);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setVisible(true);
+    frame.setResizable(false);
   }
 }  // class CaveSim 
 
