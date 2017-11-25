@@ -49,10 +49,12 @@ public class Menu extends JPanel
         public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
         {
           Point p = e.getPoint();
-
           if(p.y > 345 && p.y < 435 && p.x > 555 && p.x < 1400)
+          {
             //Survival Mode
             System.out.println("Survival");
+            isDone_ = true;
+          }
           else if(p.y > 550 && p.y < 630 && p.x > 555 && p.x < 1425)
             //Sandbox Mode
             System.out.println("Sandbox");
@@ -83,7 +85,6 @@ public class Menu extends JPanel
             timer_.stop();
             drawMenu();
             setImage();
-            isDone_ = true;
           }
         }
       }

@@ -59,7 +59,6 @@ class ImageFrame extends JFrame
 
    public void startCaveSim()
    {
-/*
      cutscene_.togglePlay();
      while(!cutscene_.Done())
      {
@@ -72,6 +71,9 @@ class ImageFrame extends JFrame
          Thread.currentThread().interrupt();
        }
      }
+     this.remove(cutscene_);
+     revalidate();
+     repaint();
      menu_.togglePlay();
      while(!menu_.Done())
      {
@@ -84,7 +86,9 @@ class ImageFrame extends JFrame
          Thread.currentThread().interrupt();
        }
      }
-*/
+     this.remove(menu_);
+     revalidate();
+     repaint();
      fire_.togglePlay();
    }
 
