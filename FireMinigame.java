@@ -26,6 +26,7 @@ public class FireMinigame extends JPanel
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
+  private Random rng_;
   private boolean isPlay_;
 
   private double ambient_;
@@ -41,8 +42,8 @@ public class FireMinigame extends JPanel
 
     isPlay_ = false;
     
-    Random rng = new Random();
-    ambient_ = temp_ = rng.nextDouble()*110 - 10;
+    rng_ = new Random();
+    ambient_ = temp_ = rng_.nextDouble()*110 - 10;
     String weatherStr;
     Color weatherClr;
     if(ambient_ > 90)
@@ -202,7 +203,7 @@ public class FireMinigame extends JPanel
           {
             if(temp_ > 800)
             {
-              if(rng.nextDouble() > .9)
+              if(rng_.nextDouble() > .9)
                 System.out.println("You smothered the fire.");
               timer_.stop();
               tempTimer.stop();

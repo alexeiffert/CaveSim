@@ -53,7 +53,23 @@ public class Menu extends JPanel
           {
             //Survival Mode
             System.out.println("Survival");
-            isDone_ = true;
+            //isDone_ = true;
+            
+            BufferedImage homeImg = null;
+            try
+            {
+              homeImg = ImageIO.read(new File("img/home.png"));
+            }
+            catch(Exception ex)
+            {
+              System.out.println("ERROR: Image(s) missing from img/ directory");
+              System.exit(-1);
+            }
+            g2d_.drawImage(homeImg,
+                           0, 0, img_.getWidth(), img_.getHeight(),
+                           0, 0, homeImg.getWidth(), homeImg.getHeight(),
+                           Color.BLACK, null);
+            setImage();
           }
           else if(p.y > 550 && p.y < 630 && p.x > 555 && p.x < 1425)
             //Sandbox Mode

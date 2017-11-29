@@ -10,7 +10,8 @@ CLASSES = \
 	Cutscene.java \
 	ImageFrame.java \
         Menu.java \
-        FireMinigame.java
+        FireMinigame.java \
+        PaintMinigame.java
 
 default: classes
 

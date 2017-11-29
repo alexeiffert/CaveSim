@@ -24,13 +24,13 @@ import java.util.Scanner;
 class ImageFrame extends JFrame
 {
   //Constants
-  private static final int WIDTH = 1080, HEIGHT = 607;
   private static final int CANCEL = -123456, DEFAULT = -654321;
 
   private final JFileChooser chooser_;
   private Cutscene cutscene_;
   private Menu menu_;
   private FireMinigame fire_;
+  private PaintMinigame paint_;
   private ClickPanel click_;
 
   //Constructor
@@ -54,11 +54,14 @@ class ImageFrame extends JFrame
     //Add game components
     this.addCutscene(screenSize);
     this.addGameMenu(screenSize);
-    this.addFireMinigame(screenSize);
+    //this.addFireMinigame(screenSize);
+    //this.addPaintMinigame(screenSize);
   }
 
+   //Must be called externally so that the GUI doesn't hang
    public void startCaveSim()
    {
+/**/
      cutscene_.togglePlay();
      while(!cutscene_.Done())
      {
@@ -86,10 +89,12 @@ class ImageFrame extends JFrame
          Thread.currentThread().interrupt();
        }
      }
+/*
      this.remove(menu_);
      revalidate();
      repaint();
      fire_.togglePlay();
+*/
    }
 
   //Add menu to frame
@@ -246,6 +251,13 @@ class ImageFrame extends JFrame
     getContentPane().add(fire_, BorderLayout.CENTER);
     pack();
     fire_.setFocusable(true); 
+  }
+
+  private void addPaintMinigame(Dimension size)
+  {
+    paint_ = new PaintMinigame(size);
+    getContentPane().add(paint_, BorderLayout.CENTER);
+    pack();
   }
 
   //Display dialog and parse input for int value
