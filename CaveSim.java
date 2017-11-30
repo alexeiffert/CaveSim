@@ -38,18 +38,31 @@ public class CaveSim
       {
         public void run()
         {
-          createGUI();
+          Multiplexer multiplex = createGUI();
         }
       }
     );
   }  // public static void main() 
 
-  public static void createGUI()
+  public static Multiplexer createGUI()
   {
-    JFrame frame = new ImageFrame(WIDTH, HEIGHT);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setVisible(true);
-    frame.setResizable(false);
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    screenSize.setSize(screenSize.getWidth()/2, screenSize.getHeight()/2);
+    Multiplexer multiplex = new Multiplexer(screenSize);
+    multiplex.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    multiplex.setVisible(true);
+    multiplex.setResizable(false);
+    new Thread
+    (
+      new Runnable()
+      {
+        public void run()
+        {
+          multiplex.startCaveSim();
+        }
+      }
+    ).start();
+    return multiplex;
   }
 }  // class CaveSim 
 

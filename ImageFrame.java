@@ -24,12 +24,13 @@ import java.util.Scanner;
 class ImageFrame extends JFrame
 {
   //Constants
-  private static final int WIDTH = 1080, HEIGHT = 607;
   private static final int CANCEL = -123456, DEFAULT = -654321;
 
   private final JFileChooser chooser_;
   private Cutscene cutscene_;
   private Menu menu_;
+  private FireMinigame fire_;
+  private PaintMinigame paint_;
   private ClickPanel click_;
 
   //Constructor
@@ -44,19 +45,66 @@ class ImageFrame extends JFrame
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     screenSize.setSize(screenSize.getWidth()/2, screenSize.getHeight()/2);
     this.setSize(screenSize);
+    ImageIcon icon = new ImageIcon("img/neanderthal.png");  // Set icon
+    this.setIconImage(icon.getImage());
 
-    //Add menu
+    //Add menu bar
     this.addMenu();
 
-    //Add and play Cutscene
-    //this.addCutscene(screenSize);
-    //this.addMenu(screenSize);
-
-    FireMinigame fire = new FireMinigame(screenSize);
-    getContentPane().add(fire, BorderLayout.CENTER);
-    pack();
-    fire.setFocusable(true); 
+    //Add game components
+    this.addCutscene(screenSize);
+    this.addGameMenu(screenSize);
+    this.addFireMinigame(screenSize);
+    this.addPaintMinigame(screenSize);
   }
+
+   //Must be called externally so that the GUI doesn't hang
+   public void startCaveSim()
+   {
+     cutscene_.togglePlay();
+     while(!cutscene_.Done())
+     {
+       try        
+       {
+         Thread.sleep(200);
+       }  
+       catch(InterruptedException ex) 
+       {
+         Thread.currentThread().interrupt();
+       }
+     }
+     this.remove(cutscene_);
+     revalidate();
+     repaint();
+     menu_.togglePlay();
+     while(!menu_.Done())
+     {
+       try        
+       {
+         Thread.sleep(200);
+       } 
+       catch(InterruptedException ex) 
+       {
+         Thread.currentThread().interrupt();
+       }
+     }
+     this.remove(menu_);
+     revalidate();
+     repaint();
+     fire_.togglePlay();
+     while(!fire_.Done())
+     {
+       try 
+       {
+         Thread.sleep(200);
+       }
+       catch(InterruptedException ex)
+       {
+         Thread.currentThread().interrupt();
+       }
+     }
+     paint_.togglePlay();
+   }
 
   //Add menu to frame
   private void addMenu()
@@ -188,25 +236,38 @@ class ImageFrame extends JFrame
     this.setJMenuBar(menuBar);
   }  // private void addMenu()
 
+  //---------------------------------------------------------------------//
+  //-------------------------- Helper Functions -------------------------//
+  //---------------------------------------------------------------------//
+
   private void addCutscene(Dimension size)
   { 
     cutscene_ = new Cutscene(size);
     getContentPane().add(cutscene_, BorderLayout.CENTER);
     pack();
-    cutscene_.togglePlay();
   }
  
-  private void addMenu(Dimension size)
+  private void addGameMenu(Dimension size)
   {
     menu_ = new Menu(size);
     getContentPane().add(menu_, BorderLayout.CENTER);
     pack();
-    menu_.togglePlay();
   }
 
-  //---------------------------------------------------------------------//
-  //-------------------------- Helper Functions -------------------------//
-  //---------------------------------------------------------------------//
+  private void addFireMinigame(Dimension size)
+  {
+    fire_ = new FireMinigame(size);
+    getContentPane().add(fire_, BorderLayout.CENTER);
+    pack();
+    fire_.setFocusable(true); 
+  }
+
+  private void addPaintMinigame(Dimension size)
+  {
+    paint_ = new PaintMinigame(size);
+    getContentPane().add(paint_, BorderLayout.CENTER);
+    pack();
+  }
 
   //Display dialog and parse input for int value
   private int getInt(String message)

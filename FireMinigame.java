@@ -1,6 +1,6 @@
 /*----------------------------------------- 
 *
-*   FireMiniGame.java
+*   FireMinigame.java
 *   Alex Eiffert
 *   CAP3027  
 *   2 November, 2017 
@@ -23,24 +23,29 @@ public class FireMinigame extends JPanel
 {
   private static final int MILLISECONDS_BETWEEN_FRAMES = 16;  // i.e. ~ 60 fps
 
+  //Animation objects
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
+  private Random rng_;
+  private boolean isPlay_, isDone_;
 
-  private double ambient_;
-  private double temp_;
+  //Game objects
+  private double ambient_, temp_;
+  private double acceleration_, velocity_;
   private int position_;
-  private double velocity_;
-  private boolean isLeft_;
+  private boolean isKindling_;
 
   public FireMinigame(Dimension size)
   {
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
-    
-    Random rng = new Random();
-    ambient_ = temp_ = rng.nextDouble()*110 - 10;
+
+    isPlay_ = isDone_ = false;
+    isKindling_ = false;
+    rng_ = new Random();
+    ambient_ = temp_ = rng_.nextDouble()*110 - 10;
     String weatherStr;
     Color weatherClr;
     if(ambient_ > 90)
@@ -79,39 +84,78 @@ public class FireMinigame extends JPanel
       weatherClr = Color.BLUE;
     }
     position_ = 0;
-    velocity_ = 0;
-    isLeft_ = false;
+    velocity_ = acceleration_ = 0;
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(),
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
 
     //Images array
-    BufferedImage fire[] = new BufferedImage[3];
+    BufferedImage fire[] = new BufferedImage[4];
     try
     {
       fire[0] = ImageIO.read(new File("img/fire0.png"));
       fire[1] = ImageIO.read(new File("img/fire1.png"));
       fire[2] = ImageIO.read(new File("img/fire2.png"));
+      fire[3] = ImageIO.read(new File("img/fire3.png"));
     }
     catch(IOException e)
     {
       System.out.println("ERROR: Image(s) missing from img/ directory");
       System.exit(-1);
     }
-    g2d_.drawImage(fire[0],
-                   0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                   0, 0, (fire[0].getWidth() - 1), (fire[0].getHeight() - 1),
-                   Color.BLACK, null); 
 
+    //Main animation timer
     timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          g2d_.drawImage(fire[1],
-                         position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
-                         0, 0, (fire[1].getWidth() - 1), (fire[1].getHeight() - 1),
+          changeBackground(Color.WHITE);  // Remove artifacts 
+
+          //Calculate position, etc., then draw
+          velocity_ += acceleration_;
+          temp_ += .2*Math.abs(velocity_);
+          position_ += (int)velocity_;
+          if(velocity_ != 0 || acceleration_ != 0)
+          {
+            velocity_ *= .999;
+            acceleration_ *= .85;
+          }
+          if(position_ > 500)
+          {
+            position_ = 500;
+            velocity_ = -1*velocity_;
+            acceleration_ = 0;
+          }
+          else if(position_ < -125)
+          {
+            position_ = -125;
+            velocity_ = -1*velocity_;
+            acceleration_ = 0;
+          }
+          g2d_.drawImage(fire[0],
+                         0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                         0, 0, (fire[0].getWidth() - 1), (fire[0].getHeight() - 1),
                          Color.BLACK, null); 
+          g2d_.drawImage(fire[1],
+                         position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.065),
+                         0, 0, fire[1].getWidth(), fire[1].getHeight(),
+                         Color.BLACK, null); 
+
+          //Text display, etc.
+          if(temp_ > 800)
+          {
+            isKindling_ = true;
+            g2d_.drawImage(fire[2],
+                           position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
+                           0, 0, fire[1].getWidth(), fire[1].getHeight(),
+                           Color.BLACK, null); 
+            g2d_.setColor(Color.BLACK);
+          }
+          else if(temp_ < 700)
+            isKindling_ = false;
+          if(isKindling_)
+            g2d_.drawString("Press 'F' to add kindling!", 50, 250);
           g2d_.setColor(Color.BLACK);
           g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
           g2d_.drawString("Fire Plow: ", 50, 150); 
@@ -127,7 +171,7 @@ public class FireMinigame extends JPanel
           else
             fireClr = Color.BLUE;
           g2d_.setColor(fireClr);
-          g2d_.drawString("" + Math.round(temp_*100)/100 + "\u00b0F", 350, 150);
+          g2d_.drawString(Math.round(temp_) + "\u00b0F", 350, 150);
           g2d_.setColor(Color.BLACK);
           g2d_.drawString("Today's Weather:", 50, 100);
           g2d_.setColor(weatherClr);
@@ -137,14 +181,13 @@ public class FireMinigame extends JPanel
         }
       }
     );  // new Timer
-    timer_.start();
 
     //Approximation of Newton's Law of Cooling
     Timer tempTimer = new Timer(250, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
-          temp_ += -.01*(temp_ - ambient_);  
+          temp_ += -.07*(temp_ - ambient_);  
         }
       }
     );
@@ -156,73 +199,49 @@ public class FireMinigame extends JPanel
       {
         public void keyPressed(KeyEvent e)
         {
-          System.out.println(position_);
           if(e.getKeyCode() == KeyEvent.VK_LEFT)
           {
-            if(isLeft_)
-              velocity_ += .1;
-            position_ = (int)(position_ - 2*velocity_);
-            if(position_ < -125)
-            {
-              position_ = -125;
-              velocity_ = 1;
-            }
-            isLeft_ = true;
-            temp_ += velocity_/2;
+            acceleration_ -= .1;
           }
           else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
           {
-            if(!isLeft_)
-              velocity_ += .1;
-            position_ = (int)(position_ + 2*velocity_);
-            if(position_ > 350)
+            acceleration_ += .1;
+          }
+          else if(e.getKeyCode() == KeyEvent.VK_F)
+          {
+            isDone_ = true;
+            if(isKindling_)
             {
-              position_ = 350;
-              velocity_ = 1;
+              //TODO
+              if(rng_.nextDouble() > .9)
+                System.out.println("You accidentally smothered the fire!");
+              timer_.stop();
+              tempTimer.stop();
+              g2d_.drawImage(fire[3],
+                             0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                             0, 0, fire[3].getWidth(), fire[3].getHeight(),
+                             Color.BLACK, null); 
+              repaint();
             }
-            isLeft_ = false;
-            temp_ += velocity_/2;
+            else
+            {
+              //TODO
+              System.out.println("You added kindling too early and smothered the fire!");
+              timer_.stop();
+              tempTimer.stop();
+            }
           }
         }
-        public void keyReleased(KeyEvent e)
-        {
-          //if(position_ < 
-          velocity_ = 1;
-        }
       }
     );
 
-/*
-    addMouseListener
-    (
-      new MouseAdapter()
-      {
-        public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
-        {
-          final Point p = e.getPoint();
-          if(p.x < 0 || p.x > img_.getWidth() || p.y < 0 || p.y > img_.getHeight())
-            return;
-
-          new Thread
-          (
-            new Runnable()
-            {
-              public void run()
-              {
-                if(e.getButton() == MouseEvent.BUTTON1)  // LMB
-                {
-                } 
-              }
-            }
-          ).start();
-        }
-      }
-    );
-
-*/
   }  // public FireMinigame(Dimension)
 
-/*
+  public boolean Done()
+  {
+    return isDone_;
+  }
+
   public boolean togglePlay()
   {
     isPlay_ = !isPlay_;
@@ -232,7 +251,12 @@ public class FireMinigame extends JPanel
       timer_.stop();
     return isPlay_;
   }
-*/
+
+  private void changeBackground(Color color)
+  {
+    g2d_.setColor(color);
+    g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+  }
 
   public BufferedImage getImage()
   {
@@ -249,8 +273,8 @@ public class FireMinigame extends JPanel
         public void run()
         {
           g2d_.drawImage(img_,
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                         0, 0, img_.getWidth(), img_.getHeight(),
+                         0, 0, img_.getWidth(), img_.getHeight(),
                          Color.BLACK, null);
           repaint();
         }
@@ -264,5 +288,5 @@ public class FireMinigame extends JPanel
     g.drawImage(img_, 0, 0, null);
   }
 
-}  // class ClickPanel
+}  // class FireMinigame 
 
