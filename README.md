@@ -5,11 +5,19 @@ Welcome to CaveSim, the world's premier Java Swing based caveman simulator
 # How to build and run
 
 $  make
+
 $  java CaveSim
 
-Once the game has started and the cutscene is over, click "Survival Mode,"
-which will start the fire minigame (to be changed in the future).
+# Demo gameplay
 
+The ImageFrame class acts as a multiplexer between minigame. Once the game has started and the cutscene 
+is over, clicking "Survival Mode," will switch to FireMinigame class and immediately start the fire 
+minigame (in future versions, this will bring the player to the home screen for a more interactive
+experience). To play the fire minigame, simply use the left and right arrow keys to control the fire
+plow--once the correct temperature is reached (up to the player to find out!), add kindling by pressing
+the 'F' key. After the fire minigame is complete, ImageFrame will immediately start the cave
+painting minigame. To play the painting minigame, complete the cave painting by drawing before time 
+runs out. At the end of the time limit, the game will "score" your performance.
 
 # Screenshots/
 

@@ -53,7 +53,7 @@ public class Menu extends JPanel
           {
             //Survival Mode
             System.out.println("Survival");
-            //isDone_ = true;
+            isDone_ = true;
             
             BufferedImage homeImg = null;
             try

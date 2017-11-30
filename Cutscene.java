@@ -26,10 +26,12 @@ public class Cutscene extends JPanel
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
+  private boolean isPlay_, isDone_;
+
   private String[] strArr_;
   private int index_;
   private int x_;
-  private boolean isDraw_, isPlay_, isDone_;
+  private boolean isDraw_;
 
   public Cutscene(Dimension size) 
   {
@@ -52,7 +54,7 @@ public class Cutscene extends JPanel
                            "\"early modern humans,", "\"early modern humans,", 
                            "\"and archaic humans", "\"and archaic humans",
                            "\"may have looked and behaved...", "\"may have looked and behaved...",
-                           "But he doesn't care about that", "But he doesn't care about that", 
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
                              "But he doesn't care about that", 
                            "Now, YOU are the caveman", "Now, YOU are the caveman", 
                            "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim", " CaveSim", "  CaveSim"};

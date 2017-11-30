@@ -27,12 +27,12 @@ public class FireMinigame extends JPanel
   private Graphics2D g2d_;
   private Timer timer_;
   private Random rng_;
-  private boolean isPlay_;
+  private boolean isPlay_, isDone_;
 
-  private double ambient_;
-  private double temp_;
+  private double ambient_, temp_;
   private double acceleration_, velocity_;
   private int position_;
+  private boolean isKindling_;
 
   public FireMinigame(Dimension size)
   {
@@ -41,6 +41,7 @@ public class FireMinigame extends JPanel
     setPreferredSize(size);
 
     isPlay_ = false;
+    isKindling_ = false;
     
     rng_ = new Random();
     ambient_ = temp_ = rng_.nextDouble()*110 - 10;
@@ -108,6 +109,7 @@ public class FireMinigame extends JPanel
         {
           timer_.stop();
           changeBackground(Color.WHITE); 
+
           //Calculate position, etc., then draw
           velocity_ += acceleration_;
           temp_ += .2*Math.abs(velocity_);
@@ -141,13 +143,17 @@ public class FireMinigame extends JPanel
           //Text display, etc.
           if(temp_ > 800)
           {
+            isKindling_ = true;
             g2d_.drawImage(fire[2],
                            position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
                            0, 0, fire[1].getWidth(), fire[1].getHeight(),
                            Color.BLACK, null); 
             g2d_.setColor(Color.BLACK);
-            g2d_.drawString("Press 'F' to add kindling!", 50, 250);
           }
+          else if(temp_ < 700)
+            isKindling_ = false;
+          if(isKindling_)
+            g2d_.drawString("Press 'F' to add kindling!", 50, 250);
           g2d_.setColor(Color.BLACK);
           g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
           g2d_.drawString("Fire Plow: ", 50, 150); 
@@ -179,7 +185,7 @@ public class FireMinigame extends JPanel
       {
         public void actionPerformed(ActionEvent e)
         {
-          temp_ += -.07*(temp_ - ambient_);  
+          temp_ += -.08*(temp_ - ambient_);  
         }
       }
     );
@@ -201,10 +207,12 @@ public class FireMinigame extends JPanel
           }
           else if(e.getKeyCode() == KeyEvent.VK_F)
           {
-            if(temp_ > 800)
+            isDone_ = true;
+            if(isKindling_)
             {
+              //TODO
               if(rng_.nextDouble() > .9)
-                System.out.println("You smothered the fire.");
+                System.out.println("You accidentally smothered the fire!");
               timer_.stop();
               tempTimer.stop();
               g2d_.drawImage(fire[3],
@@ -213,10 +221,14 @@ public class FireMinigame extends JPanel
                              Color.BLACK, null); 
               repaint();
             }
+            else
+            {
+              //TODO
+              System.out.println("You added kindling too early and smothered the fire!");
+              timer_.stop();
+              tempTimer.stop();
+            }
           }
-        }
-        public void keyReleased(KeyEvent e)
-        {
         }
       }
     );
@@ -250,6 +262,11 @@ public class FireMinigame extends JPanel
 
 */
   }  // public FireMinigame(Dimension)
+
+  public boolean Done()
+  {
+    return isDone_;
+  }
 
   public boolean togglePlay()
   {

@@ -52,16 +52,15 @@ class ImageFrame extends JFrame
     this.addMenu();
 
     //Add game components
-    //this.addCutscene(screenSize);
-    //this.addGameMenu(screenSize);
-    //this.addFireMinigame(screenSize);
+    this.addCutscene(screenSize);
+    this.addGameMenu(screenSize);
+    this.addFireMinigame(screenSize);
     this.addPaintMinigame(screenSize);
   }
 
    //Must be called externally so that the GUI doesn't hang
    public void startCaveSim()
    {
-/*
      cutscene_.togglePlay();
      while(!cutscene_.Done())
      {
@@ -89,12 +88,21 @@ class ImageFrame extends JFrame
          Thread.currentThread().interrupt();
        }
      }
-/*
      this.remove(menu_);
      revalidate();
      repaint();
      fire_.togglePlay();
-*/
+     while(!fire_.Done())
+     {
+       try 
+       {
+         Thread.sleep(200);
+       }
+       catch(InterruptedException ex)
+       {
+         Thread.currentThread().interrupt();
+       }
+     }
      paint_.togglePlay();
    }
 
