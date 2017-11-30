@@ -8,7 +8,7 @@ CLASSES = \
 	CaveSim.java \
 	ClickPanel.java \
 	Cutscene.java \
-	ImageFrame.java \
+	Multiplexer.java \
         Menu.java \
         FireMinigame.java \
         PaintMinigame.java

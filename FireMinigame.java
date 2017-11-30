@@ -23,12 +23,14 @@ public class FireMinigame extends JPanel
 {
   private static final int MILLISECONDS_BETWEEN_FRAMES = 16;  // i.e. ~ 60 fps
 
+  //Animation objects
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
   private Random rng_;
   private boolean isPlay_, isDone_;
 
+  //Game objects
   private double ambient_, temp_;
   private double acceleration_, velocity_;
   private int position_;
@@ -40,9 +42,8 @@ public class FireMinigame extends JPanel
     setMaximumSize(size);
     setPreferredSize(size);
 
-    isPlay_ = false;
+    isPlay_ = isDone_ = false;
     isKindling_ = false;
-    
     rng_ = new Random();
     ambient_ = temp_ = rng_.nextDouble()*110 - 10;
     String weatherStr;
@@ -103,12 +104,13 @@ public class FireMinigame extends JPanel
       System.exit(-1);
     }
 
+    //Main animation timer
     timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          changeBackground(Color.WHITE); 
+          changeBackground(Color.WHITE);  // Remove artifacts 
 
           //Calculate position, etc., then draw
           velocity_ += acceleration_;
@@ -180,12 +182,12 @@ public class FireMinigame extends JPanel
       }
     );  // new Timer
 
-    //Loose approximation of Newton's Law of Cooling
+    //Approximation of Newton's Law of Cooling
     Timer tempTimer = new Timer(250, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
-          temp_ += -.08*(temp_ - ambient_);  
+          temp_ += -.07*(temp_ - ambient_);  
         }
       }
     );
@@ -233,34 +235,6 @@ public class FireMinigame extends JPanel
       }
     );
 
-/*
-    addMouseListener
-    (
-      new MouseAdapter()
-      {
-        public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
-        {
-          final Point p = e.getPoint();
-          if(p.x < 0 || p.x > img_.getWidth() || p.y < 0 || p.y > img_.getHeight())
-            return;
-
-          new Thread
-          (
-            new Runnable()
-            {
-              public void run()
-              {
-                if(e.getButton() == MouseEvent.BUTTON1)  // LMB
-                {
-                } 
-              }
-            }
-          ).start();
-        }
-      }
-    );
-
-*/
   }  // public FireMinigame(Dimension)
 
   public boolean Done()
@@ -299,8 +273,8 @@ public class FireMinigame extends JPanel
         public void run()
         {
           g2d_.drawImage(img_,
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                         0, 0, img_.getWidth(), img_.getHeight(),
+                         0, 0, img_.getWidth(), img_.getHeight(),
                          Color.BLACK, null);
           repaint();
         }

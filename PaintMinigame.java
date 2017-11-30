@@ -23,15 +23,18 @@ public class PaintMinigame extends JPanel
   private static final int MILLISECONDS_BETWEEN_FRAMES = 1000;
   private static final int TIME = 20;
 
+  //Main animation variables
   private BufferedImage img_;  //Display img
   private Graphics2D g2d_, g2d2_;  //g2d2_ handles the pen, g2d_ everything else
   private Timer timer_;
-  private int time_, index_;
-  private Point prev_;
-  private boolean isPlay_, isDone_, isDraw_, canDraw_;
+  private boolean isPlay_, isDone_; 
 
+  //Game variables
   private BufferedImage compare_[];  //Comparison drawings
   private BufferedImage cave_[];  //For simplicity, all drawings are loaded
+  private int time_, index_;
+  private Point prev_;
+  private boolean isDraw_, canDraw_;
 
   public PaintMinigame(Dimension size) 
   {

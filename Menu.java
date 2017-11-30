@@ -1,6 +1,6 @@
 /*----------------------------------------- 
 *
-*   Cutscene.java
+*   Menu.java
 *   Alex Eiffert
 *   CAP3027  
 *   2 November, 2017 
@@ -28,7 +28,7 @@ public class Menu extends JPanel
   private Timer timer_;
   private Color[] colorArr_;
   private int index_;
-  private boolean isDraw_, isPlay_, isDone_;
+  private boolean isPlay_, isDone_;
 
   public Menu(Dimension size) 
   {
@@ -39,9 +39,10 @@ public class Menu extends JPanel
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), 
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
+    g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     colorArr_ = getGreys(100);
     index_ = -1;
-    isDraw_ = isPlay_ = isDone_ = false;
+    isPlay_ = isDone_ = false;
     addMouseListener
     (
       new MouseAdapter()
@@ -49,7 +50,7 @@ public class Menu extends JPanel
         public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
         {
           Point p = e.getPoint();
-          if(p.y > 345 && p.y < 435 && p.x > 555 && p.x < 1400)
+          if(p.y > 400 && p.y < 450 && p.x > 630 && p.x < 970)
           {
             //Survival Mode
             System.out.println("Survival");
@@ -71,18 +72,19 @@ public class Menu extends JPanel
                            Color.BLACK, null);
             setImage();
           }
-          else if(p.y > 550 && p.y < 630 && p.x > 555 && p.x < 1425)
-            //Sandbox Mode
-            System.out.println("Sandbox");
-          else if(p.y > 750 && p.y < 830 && p.x > 485 && p.x < 815)
+          else if(p.y > 510 && p.y < 565 && p.x > 635 && p.x < 970)
+          {
+            sandbox();
+          }
+          else if(p.y > 635 && p.y < 685 && p.x > 725 && p.x < 880)
           {
             about();
-            setImage();
           }
         }
       }
     );
 
+    //For opening menu animation
     timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
@@ -122,14 +124,43 @@ public class Menu extends JPanel
     return isPlay_;
   }
 
-  private boolean toggleDraw()
+  //Updates img_ to the sanbox menu
+  private void sandbox()
   {
-    isDraw_ = !isDraw_;
-    return isDraw_;
+    try
+    {
+      BufferedImage sandbox = ImageIO.read(new File("img/sandbox.png"));
+      g2d_.setPaintMode();
+      g2d_.drawImage(sandbox,
+                     0, 0, img_.getWidth(), img_.getHeight(),
+                     0, 0, sandbox.getWidth(), sandbox.getHeight(),
+                     Color.BLACK, null);
+      repaint();
+    }
+    catch(IOException exc)
+    {
+      System.out.println("Menu image missing");
+    }
   }
 
+  //Updates img_ to the about page
   private void about()
   {
+    try
+    {
+      BufferedImage mainMenu = ImageIO.read(new File("img/about.png"));
+      g2d_.setPaintMode();
+      g2d_.drawImage(mainMenu,
+                     0, 0, img_.getWidth(), img_.getHeight(),
+                     0, 0, mainMenu.getWidth(), mainMenu.getHeight(),
+                     Color.BLACK, null);
+      repaint();
+    }
+    catch(IOException exc)
+    {
+      System.out.println("Menu image missing");
+    }
+    /*
     changeBackground(Color.BLACK);
     g2d_.setColor(Color.WHITE);
     g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
@@ -141,6 +172,7 @@ public class Menu extends JPanel
                     " fire, and more.", img_.getWidth()/6, 350);
     g2d_.drawString("In \"Sandbox Mode\", practice each of the minigames individually and" + 
                     " hone your skills.", img_.getWidth()/6, 400);
+    */
   }
 
   private void changeBackground(Color color)
@@ -162,22 +194,6 @@ public class Menu extends JPanel
     return color;
   }
 
-  private void dispText()
-  {
-    g2d_.setXORMode(Color.WHITE);
-    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
-    //g2d_.drawString(strArr_[index_], x_, 100);
-    g2d_.setPaintMode();
-  }
-
-  private void errText()
-  {
-    g2d_.setXORMode(Color.WHITE);
-    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
-    //g2d_.drawString(strArr_[index_++], x_, 100);
-    g2d_.setPaintMode();
-  }
-
   public BufferedImage getImage()
   {
     return img_;
@@ -185,6 +201,21 @@ public class Menu extends JPanel
 
   private void drawMenu()
   {
+    try
+    {
+      BufferedImage mainMenu = ImageIO.read(new File("img/main_menu.png"));
+      g2d_.setPaintMode();
+      g2d_.drawImage(mainMenu,
+                     0, 0, img_.getWidth(), img_.getHeight(),
+                     0, 0, mainMenu.getWidth(), mainMenu.getHeight(),
+                     Color.BLACK, null);
+      repaint();
+    }
+    catch(IOException exc)
+    {
+      System.out.println("Menu image missing");
+    }
+/* Old menu was Java text
     changeBackground(Color.BLACK);
     g2d_.setPaintMode();
     g2d_.setColor(new Color(200, 200, 200));
@@ -206,12 +237,7 @@ public class Menu extends JPanel
     {
       System.out.println("Menu image missing");
     }
-  }
-
-  private void close()
-  {
-    img_ = null;
-    timer_.stop();
+*/
   }
   
   //setImage() is always sent to EDT
@@ -239,4 +265,5 @@ public class Menu extends JPanel
     g.drawImage(img_, 0, 0, null);
   }
 
-}  // class ClickPanel
+}  // class Menu
+

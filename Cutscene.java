@@ -55,8 +55,8 @@ public class Cutscene extends JPanel
                            "\"and archaic humans", "\"and archaic humans",
                            "\"may have looked and behaved...", "\"may have looked and behaved...",
                            "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
-                             "But he doesn't care about that", 
-                           "Now, YOU are the caveman", "Now, YOU are the caveman", 
+                           "But.. he doesn't care about that.", 
+                           "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
                            "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim", " CaveSim", "  CaveSim"};
     index_ = x_ = 0;
     isDraw_ = isPlay_ = isDone_ = false;
