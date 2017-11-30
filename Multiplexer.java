@@ -64,7 +64,7 @@ class Multiplexer extends JFrame
      {
        try        
        {
-         Thread.sleep(200);
+         Thread.sleep(1000);
        }  
        catch(InterruptedException ex) 
        {
@@ -79,7 +79,7 @@ class Multiplexer extends JFrame
      {
        try        
        {
-         Thread.sleep(200);
+         Thread.sleep(1000);
        } 
        catch(InterruptedException ex) 
        {
@@ -94,7 +94,7 @@ class Multiplexer extends JFrame
      {
        try 
        {
-         Thread.sleep(200);
+         Thread.sleep(1000);
        }
        catch(InterruptedException ex)
        {
