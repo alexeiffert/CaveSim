@@ -50,7 +50,7 @@ class Multiplexer extends JFrame
     this.addMenu();
 
     //Add game components
-    this.addCutscene(size);
+    //this.addCutscene(size);
     this.addGameMenu(size);
     this.addFireMinigame(size);
     this.addPaintMinigame(size);
@@ -59,12 +59,13 @@ class Multiplexer extends JFrame
    //Must be called externally so that the GUI doesn't hang
    public void startCaveSim()
    {
+/*
      cutscene_.togglePlay();
      while(!cutscene_.Done())
      {
        try        
        {
-         Thread.sleep(200);
+         Thread.sleep(1000);
        }  
        catch(InterruptedException ex) 
        {
@@ -74,12 +75,13 @@ class Multiplexer extends JFrame
      this.remove(cutscene_);
      revalidate();
      repaint();
+*/
      menu_.togglePlay();
      while(!menu_.Done())
      {
        try        
        {
-         Thread.sleep(200);
+         Thread.sleep(1000);
        } 
        catch(InterruptedException ex) 
        {
@@ -94,7 +96,7 @@ class Multiplexer extends JFrame
      {
        try 
        {
-         Thread.sleep(200);
+         Thread.sleep(1000);
        }
        catch(InterruptedException ex)
        {

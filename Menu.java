@@ -27,8 +27,8 @@ public class Menu extends JPanel
   private Graphics2D g2d_;
   private Timer timer_;
   private Color[] colorArr_;
-  private int index_;
-  private boolean isPlay_, isDone_;
+  private int index_, selection_;
+  private boolean isPlay_, isDone_, isMainMenu_, isSandboxMenu_, isAbout_;
 
   public Menu(Dimension size) 
   {
@@ -42,47 +42,73 @@ public class Menu extends JPanel
     g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     colorArr_ = getGreys(100);
     index_ = -1;
-    isPlay_ = isDone_ = false;
+    selection_ = 0;
+    isPlay_ = isDone_ = isMainMenu_ = isSandboxMenu_ = isAbout_ = false;
     addMouseListener
     (
       new MouseAdapter()
       {
-        public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
+        public void mouseReleased(MouseEvent e)  // Allows for the more intuitive drag-if-misclicked
         {
-          Point p = e.getPoint();
-          if(p.y > 400 && p.y < 450 && p.x > 630 && p.x < 970)
+          if(isAbout_)
+            drawMenu();
+          else if(isMainMenu_)
           {
-            //Survival Mode
-            System.out.println("Survival");
-            isDone_ = true;
+            Point p = e.getPoint();
+            if(p.y > 400 && p.y < 450 && p.x > 630 && p.x < 970)  //Survival option
+            {
+              
+              System.out.println("Survival");
+              isDone_ = true;
             
-            BufferedImage homeImg = null;
-            try
+              BufferedImage homeImg = null;
+              try
+              {
+                homeImg = ImageIO.read(new File("img/home.png"));
+              }
+              catch(Exception ex)
+              {
+                System.out.println("ERROR: Image(s) missing from img/ directory");
+                System.exit(-1);
+              }
+              g2d_.drawImage(homeImg,
+                             0, 0, img_.getWidth(), img_.getHeight(),
+                             0, 0, homeImg.getWidth(), homeImg.getHeight(),
+                             Color.BLACK, null);
+              setImage();
+            } // if(survival mode)
+            else if(p.y > 510 && p.y < 565 && p.x > 635 && p.x < 970)  //Sandbox option
             {
-              homeImg = ImageIO.read(new File("img/home.png"));
+              sandbox();
             }
-            catch(Exception ex)
+            else if(p.y > 635 && p.y < 685 && p.x > 725 && p.x < 880)  //About option
             {
-              System.out.println("ERROR: Image(s) missing from img/ directory");
-              System.exit(-1);
+              about();
             }
-            g2d_.drawImage(homeImg,
-                           0, 0, img_.getWidth(), img_.getHeight(),
-                           0, 0, homeImg.getWidth(), homeImg.getHeight(),
-                           Color.BLACK, null);
-            setImage();
-          }
-          else if(p.y > 510 && p.y < 565 && p.x > 635 && p.x < 970)
+          }  // else if(isMainMenu_) 
+          else if(isSandboxMenu_)
           {
-            sandbox();
-          }
-          else if(p.y > 635 && p.y < 685 && p.x > 725 && p.x < 880)
-          {
-            about();
+            Point p = e.getPoint();
+            if(p.y > 400 && p.y < 450 && p.x > 580 && p.x < 1025)  // Fish Minigame
+            {
+              broadcast(1);
+            } 
+            else if(p.y > 505 && p.y < 550 && p.x > 640 && p.x < 975)  // Fire Minigame
+            {
+              broadcast(4);
+            }
+            else if(p.y > 595 && p.y < 650 && p.x > 470 && p.x < 1120)  // Paint Minigame
+            {
+              broadcast(5);
+            }
+            else if(p.y > 755 && p.y < 810 && p.x > 700 && p.x < 910)  //Back
+            {
+              drawMenu();
+            }
           }
         }
       }
-    );
+    );  // addMouseListener()
 
     //For opening menu animation
     timer_ = new Timer(MILLISECONDS_BETWEEN_FRAMES, new ActionListener()
@@ -102,7 +128,6 @@ public class Menu extends JPanel
           {
             timer_.stop();
             drawMenu();
-            setImage();
           }
         }
       }
@@ -124,9 +149,64 @@ public class Menu extends JPanel
     return isPlay_;
   }
 
+  public int getSelection()
+  {
+    return selection_;
+  }
+
+  private void broadcast(int n)
+  {
+    selection_ = n;
+  }
+
+  private void drawMenu()
+  {
+    isMainMenu_ = true;
+    isSandboxMenu_ = isAbout_ = false;
+    try
+    {
+      BufferedImage mainMenu = ImageIO.read(new File("img/main_menu.png"));
+      g2d_.setPaintMode();
+      g2d_.drawImage(mainMenu,
+                     0, 0, img_.getWidth(), img_.getHeight(),
+                     0, 0, mainMenu.getWidth(), mainMenu.getHeight(),
+                     Color.BLACK, null);
+      repaint();
+    }
+    catch(IOException exc)
+    {
+      System.out.println("Menu image missing");
+    }
+/* Old menu was Java text
+    changeBackground(Color.BLACK);
+    g2d_.setPaintMode();
+    g2d_.setColor(new Color(200, 200, 200));
+    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
+    g2d_.drawString("CaveSim v1.0", img_.getWidth()/4, img_.getHeight()/4);
+    g2d_.drawString("- Survival Mode", 550, img_.getHeight()/4 + 200);
+    g2d_.drawString("- Sandbox Mode", 550, img_.getHeight()/4 + 400);
+    g2d_.drawString("- About", img_.getWidth()/4, img_.getHeight()/4 + 600);
+    try
+    {
+      BufferedImage neanderthal = ImageIO.read(new File("img/neanderthal.png"));
+      g2d_.drawImage(neanderthal,
+                     50, 350, 1200, (img_.getHeight() - 1),
+                     0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                     Color.BLACK, null);
+      repaint();
+    }
+    catch(IOException exc)
+    {
+      System.out.println("Menu image missing");
+    }
+*/
+  }
+
   //Updates img_ to the sanbox menu
   private void sandbox()
   {
+    isSandboxMenu_ = true;
+    isMainMenu_ = isAbout_ = false;
     try
     {
       BufferedImage sandbox = ImageIO.read(new File("img/sandbox.png"));
@@ -146,6 +226,8 @@ public class Menu extends JPanel
   //Updates img_ to the about page
   private void about()
   {
+    isAbout_ = true;
+    isMainMenu_ = isSandboxMenu_ = false;
     try
     {
       BufferedImage mainMenu = ImageIO.read(new File("img/about.png"));
@@ -199,47 +281,6 @@ public class Menu extends JPanel
     return img_;
   }
 
-  private void drawMenu()
-  {
-    try
-    {
-      BufferedImage mainMenu = ImageIO.read(new File("img/main_menu.png"));
-      g2d_.setPaintMode();
-      g2d_.drawImage(mainMenu,
-                     0, 0, img_.getWidth(), img_.getHeight(),
-                     0, 0, mainMenu.getWidth(), mainMenu.getHeight(),
-                     Color.BLACK, null);
-      repaint();
-    }
-    catch(IOException exc)
-    {
-      System.out.println("Menu image missing");
-    }
-/* Old menu was Java text
-    changeBackground(Color.BLACK);
-    g2d_.setPaintMode();
-    g2d_.setColor(new Color(200, 200, 200));
-    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
-    g2d_.drawString("CaveSim v1.0", img_.getWidth()/4, img_.getHeight()/4);
-    g2d_.drawString("- Survival Mode", 550, img_.getHeight()/4 + 200);
-    g2d_.drawString("- Sandbox Mode", 550, img_.getHeight()/4 + 400);
-    g2d_.drawString("- About", img_.getWidth()/4, img_.getHeight()/4 + 600);
-    try
-    {
-      BufferedImage neanderthal = ImageIO.read(new File("img/neanderthal.png"));
-      g2d_.drawImage(neanderthal,
-                     50, 350, 1200, (img_.getHeight() - 1),
-                     0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                     Color.BLACK, null);
-      repaint();
-    }
-    catch(IOException exc)
-    {
-      System.out.println("Menu image missing");
-    }
-*/
-  }
-  
   //setImage() is always sent to EDT
   public void setImage()
   {
@@ -250,8 +291,8 @@ public class Menu extends JPanel
         public void run()
         {
           g2d_.drawImage(img_,
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
+                         0, 0, img_.getWidth(), img_.getHeight(),
+                         0, 0, img_.getWidth(), img_.getHeight(),
                          Color.BLACK, null);
           repaint();
         }
