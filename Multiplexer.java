@@ -33,6 +33,7 @@ class Multiplexer extends JFrame
   private boolean isSurvival_;
   private FireMinigame fire_;
   private PaintMinigame paint_;
+  private HuntMinigame hunt_;
 
   //Constructor
   public Multiplexer(Dimension size)
@@ -57,6 +58,7 @@ class Multiplexer extends JFrame
     isSurvival_ = false;
     fire_ = null;
     paint_ = null;
+    hunt_ = null;
   }
 
     //Plays cutscene and starts the main game infinite loop
@@ -105,11 +107,25 @@ class Multiplexer extends JFrame
         }
         case 2:  // Hunt minigame
         {
+          this.addHuntMinigame(size_); 
+          hunt_.togglePlay();
+          while(!hunt_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
           break;
         }
         case 3:  // Fire minigame
         {
-          menu_.togglePlay();
           this.addFireMinigame(size_); 
           fire_.togglePlay();
           while(!fire_.Done())
@@ -129,7 +145,6 @@ class Multiplexer extends JFrame
         }
         case 4:  // Paint minigame
         {
-          menu_.togglePlay();
           this.addPaintMinigame(size_);
           paint_.togglePlay();
           while(!paint_.Done())
@@ -317,6 +332,16 @@ class Multiplexer extends JFrame
     paint_ = new PaintMinigame(size);
     getContentPane().removeAll();
     getContentPane().add(paint_, BorderLayout.CENTER);
+    pack();
+    revalidate();
+    repaint();
+  }
+
+  private void addHuntMinigame(Dimension size)
+  {
+    hunt_ = new HuntMinigame(size);
+    getContentPane().removeAll();
+    getContentPane().add(hunt_, BorderLayout.CENTER);
     pack();
     revalidate();
     repaint();

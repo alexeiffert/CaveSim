@@ -69,25 +69,15 @@ public class Menu extends JPanel
               return;
             Point p = e.getPoint();
             if(p.y > 250 && p.y < 535 && p.x > 550 && p.x < 1050)  //Paint minigame
-            {
               setCursor(new Cursor(Cursor.HAND_CURSOR));
-            } 
             else if(p.y > 600 && p.y < 870 && p.x > 500 && p.x < 1150)  //Fire minigame 
-            {
               setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
             else if(p.x > 1450)  //Hunt minigame 
-            {
               setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
             else if(p.x < 150)  //Fish minigame 
-            {
               setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
             else if(p.y > 210 && p.y < 250 && p.x > 1080 && p.x < 1280)  //Wits minigame 
-            {
               setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
             else
               setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
           }
@@ -104,25 +94,15 @@ public class Menu extends JPanel
               return;
             Point p = e.getPoint();
             if(p.x < 150)  //Fish minigame 
-            {
               broadcast(1);
-            }
             else if(p.x > 1450)  //Hunt minigame 
-            {
               broadcast(2);
-            }
             else if(p.y > 600 && p.y < 870 && p.x > 500 && p.x < 1150)  //Fire minigame 
-            {
               broadcast(3);
-            }
             else if(p.y > 250 && p.y < 535 && p.x > 550 && p.x < 1050)  //Paint minigame
-            {
               broadcast(4);
-            } 
             else if(p.y > 210 && p.y < 250 && p.x > 1080 && p.x < 1280)  //Wits minigame 
-            {
               broadcast(5);
-            }
           }
         }
       );  // addMouseListener()
@@ -143,42 +123,32 @@ public class Menu extends JPanel
             {
               Point p = e.getPoint();
               if(p.y > 400 && p.y < 450 && p.x > 630 && p.x < 970)  //Survival option
-              {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              } 
               else if(p.y > 510 && p.y < 565 && p.x > 635 && p.x < 970)  //Sandbox option
-              {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              }
               else if(p.y > 635 && p.y < 685 && p.x > 725 && p.x < 880)  //About option
-              {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              }
               else
                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }  // else if(isMainMenu_) 
             else if(isSandboxMenu_)
             {
               Point p = e.getPoint();
-              if(p.y > 400 && p.y < 450 && p.x > 580 && p.x < 1025)  // Fish Minigame
-              {
+              if(p.y > 340 && p.y < 390 && p.x > 580 && p.x < 1025)  // Fish Minigame
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              } 
+              else if(p.y > 430 && p.y < 480 && p.x > 520 && p.x < 1080)  // Hunt Minigame
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
               else if(p.y > 505 && p.y < 550 && p.x > 640 && p.x < 975)  // Fire Minigame
-              {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              }
               else if(p.y > 595 && p.y < 650 && p.x > 470 && p.x < 1120)  // Paint Minigame
-              {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              }
+              else if(p.y > 680 && p.y < 730 && p.x > 620 && p.x < 970)  // Wits Minigame
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
               else if(p.y > 755 && p.y < 810 && p.x > 700 && p.x < 910)  //Back
-              {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
-              }
-            }
-            else
-              setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+              else
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }  
           }
         }
       );
@@ -197,37 +167,27 @@ public class Menu extends JPanel
             {
               Point p = e.getPoint();
               if(p.y > 400 && p.y < 450 && p.x > 630 && p.x < 970)  //Survival option
-              {
                 broadcast(6);
-              } // if(survival mode)
               else if(p.y > 510 && p.y < 565 && p.x > 635 && p.x < 970)  //Sandbox option
-              {
                 sandbox();
-              }
               else if(p.y > 635 && p.y < 685 && p.x > 725 && p.x < 880)  //About option
-              {
                 about();
-              }
             }  // else if(isMainMenu_) 
             else if(isSandboxMenu_)
             {
               Point p = e.getPoint();
-              if(p.y > 400 && p.y < 450 && p.x > 580 && p.x < 1025)  // Fish Minigame
-              {
+              if(p.y > 340 && p.y < 390 && p.x > 580 && p.x < 1025)  // Fish Minigame
                 broadcast(1);
-              } 
+              else if(p.y > 430 && p.y < 480 && p.x > 520 && p.x < 1080)  // Hunt Minigame
+                broadcast(2);
               else if(p.y > 505 && p.y < 550 && p.x > 640 && p.x < 975)  // Fire Minigame
-              {
                 broadcast(3);
-              }
               else if(p.y > 595 && p.y < 650 && p.x > 470 && p.x < 1120)  // Paint Minigame
-              {
                 broadcast(4);
-              }
+              else if(p.y > 680 && p.y < 730 && p.x > 620 && p.x < 970)  // Wits Minigame
+                broadcast(5);
               else if(p.y > 755 && p.y < 810 && p.x > 700 && p.x < 910)  //Back
-              {
                 drawMenu();
-              }
             }
           }
         }
@@ -371,19 +331,6 @@ public class Menu extends JPanel
     {
       System.out.println("Menu image missing");
     }
-    /*
-    changeBackground(Color.BLACK);
-    g2d_.setColor(Color.WHITE);
-    g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 100));
-    g2d_.drawString("About CaveSim v1.0:", 100, 100);
-    g2d_.setFont(new Font(Font.SERIF, Font.PLAIN, 25));
-    g2d_.drawString("CaveSim is the world's premier, Java Swing-based caveman simulation game.",
-                    img_.getWidth()/6, 250);
-    g2d_.drawString("In \"Survival\" mode, YOU are the caveman. Forage for food, discover" + 
-                    " fire, and more.", img_.getWidth()/6, 350);
-    g2d_.drawString("In \"Sandbox Mode\", practice each of the minigames individually and" + 
-                    " hone your skills.", img_.getWidth()/6, 400);
-    */
   }
 
   private void changeBackground(Color color)

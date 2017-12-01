@@ -38,7 +38,6 @@ public class FireMinigame extends JPanel
 
   public FireMinigame(Dimension size)
   {
-    setFocusable(true);
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
