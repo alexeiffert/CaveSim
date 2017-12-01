@@ -163,20 +163,32 @@ public class PaintMinigame extends JPanel
             canDraw_ = isDraw_ = false;
             isClickable_ = true;
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-            final double score = Math.round(compare())*100;
-            score_ = (int)score/20;
             new Thread
             (
               new Runnable()
               {
                 public void run()
                 {
+                  double score = Math.round(compare()*100);
+                  score_ = (int)score/20;
                   SwingUtilities.invokeLater
                   (
                     new Runnable()
                     {
                       public void run()
                       {
+                        BufferedImage ss = new BufferedImage(img_.getWidth(), img_.getHeight(), 
+                                                             BufferedImage.TYPE_INT_ARGB);
+                        Graphics2D g = (Graphics2D)ss.createGraphics();
+                        g.drawImage(img_,
+                                       0, 0, img_.getWidth(), img_.getHeight(),
+                                       0, 0, img_.getWidth(), img_.getHeight(),
+                                       Color.BLACK, null);
+                        g.dispose();
+                        g2d_.drawImage(cave_[index_],
+                                       0, 0, img_.getWidth(), img_.getHeight(),
+                                       0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
+                                       Color.BLACK, null);
                         g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
                         g2d_.drawString("You scored " + score + " and gained " + score_ + " intelligence points.", 
                                         0, img_.getHeight()/2);
@@ -197,7 +209,7 @@ public class PaintMinigame extends JPanel
                           File outputFile = new File(randomStr);
                           try
                           {
-                            javax.imageio.ImageIO.write(img_, "png", outputFile);
+                            javax.imageio.ImageIO.write(ss, "png", outputFile);
                           }
                           catch(Exception e)
                           {
@@ -212,11 +224,6 @@ public class PaintMinigame extends JPanel
                 }
               }
             ).start();
-            g2d_.drawImage(cave_[index_],
-                           0, 0, img_.getWidth(), img_.getHeight(),
-                           0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
-                           Color.BLACK, null);
-            setImage();
           }
           else
             timer_.restart();
@@ -272,7 +279,7 @@ public class PaintMinigame extends JPanel
           ++incorrect;
       }
     }
-    correct -= incorrect*.1;  //Weight incorrect pixels
+    correct -= incorrect*.05;  //Weight incorrect pixels
     if(correct < 0)
       correct = 0;
     return correct/count; 

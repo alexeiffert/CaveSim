@@ -336,6 +336,11 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          if(!isSurvival_)
+          {
+            displayError("Nothing to save!");
+            return;
+          }
           chooser_.setCurrentDirectory(new File("./SavedGames"));
           File outputFile = getFile();
           try
@@ -390,7 +395,12 @@ class Multiplexer extends JFrame
       new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
-        {
+        {          
+          if(!isSurvival_)
+          {
+            displayError("Nothing to save!");
+            return;
+          }
           chooser_.setCurrentDirectory(new File("./SavedGames"));
           File outputFile = getFile();
           try
