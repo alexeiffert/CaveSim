@@ -38,6 +38,7 @@ public class FireMinigame extends JPanel
 
   public FireMinigame(Dimension size)
   {
+    setFocusable(true);
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
@@ -134,11 +135,11 @@ public class FireMinigame extends JPanel
             acceleration_ = 0;
           }
           g2d_.drawImage(fire[0],
-                         0, img_.getHeight()/2, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                         0, 0, (fire[0].getWidth() - 1), (fire[0].getHeight() - 1),
+                         0, img_.getHeight()/2, img_.getWidth(), img_.getHeight(),
+                         0, 0, fire[0].getWidth(), fire[0].getHeight(),
                          Color.BLACK, null); 
           g2d_.drawImage(fire[1],
-                         position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.065),
+                         position_, 0, img_.getWidth(), (int)(img_.getHeight()/1.065),
                          0, 0, fire[1].getWidth(), fire[1].getHeight(),
                          Color.BLACK, null); 
 
@@ -147,7 +148,7 @@ public class FireMinigame extends JPanel
           {
             isKindling_ = true;
             g2d_.drawImage(fire[2],
-                           position_, 0, (img_.getWidth() - 1), (int)(img_.getHeight()/1.06),
+                           position_, 0, img_.getWidth(), (int)(img_.getHeight()/1.06),
                            0, 0, fire[1].getWidth(), fire[1].getHeight(),
                            Color.BLACK, null); 
             g2d_.setColor(Color.BLACK);
@@ -210,13 +211,13 @@ public class FireMinigame extends JPanel
           else if(e.getKeyCode() == KeyEvent.VK_F)
           {
             isDone_ = true;
+            timer_.stop();
+            tempTimer.stop();
             if(isKindling_)
             {
               //TODO
               if(rng_.nextDouble() > .9)
                 System.out.println("You accidentally smothered the fire!");
-              timer_.stop();
-              tempTimer.stop();
               g2d_.drawImage(fire[3],
                              0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
                              0, 0, fire[3].getWidth(), fire[3].getHeight(),
@@ -227,8 +228,6 @@ public class FireMinigame extends JPanel
             {
               //TODO
               System.out.println("You added kindling too early and smothered the fire!");
-              timer_.stop();
-              tempTimer.stop();
             }
           }
         }

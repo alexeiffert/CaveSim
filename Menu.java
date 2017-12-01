@@ -27,23 +27,30 @@ public class Menu extends JPanel
   private Graphics2D g2d_;
   private Timer timer_;
   private Color[] colorArr_;
+  private String[] strArr_;
   private int index_, selection_;
-  private boolean isPlay_, isDone_, isMainMenu_, isSandboxMenu_, isAbout_;
+  private boolean isPlay_, isDone_, isSurvival_, isMainMenu_, isSandboxMenu_, isAbout_;
 
   public Menu(Dimension size) 
   {
+    //Set attributes
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
+    setCursor(new Cursor(Cursor.WAIT_CURSOR));
 
+    //Initialize data members, mouse, and timer
+    strArr_ = new String[]{"Fetching bones", "Searching for suitable caves", "Reticulating splines",
+                            "Evolving", "Spawning fish", "Mixing cave paint", "Gathering kindling",
+                            "Rearranging rock furniture", "Teaching AI", "Inventing the wheel"};
+    colorArr_ = getGreys(100);
+    index_ = -1;
+    selection_ = 0;
+    isPlay_ = isDone_ = isSurvival_ = isMainMenu_ = isSandboxMenu_ = isAbout_ = false;
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), 
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
     g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    colorArr_ = getGreys(100);
-    index_ = -1;
-    selection_ = 0;
-    isPlay_ = isDone_ = isMainMenu_ = isSandboxMenu_ = isAbout_ = false;
     addMouseListener
     (
       new MouseAdapter()
@@ -57,25 +64,7 @@ public class Menu extends JPanel
             Point p = e.getPoint();
             if(p.y > 400 && p.y < 450 && p.x > 630 && p.x < 970)  //Survival option
             {
-              
-              System.out.println("Survival");
-              isDone_ = true;
-            
-              BufferedImage homeImg = null;
-              try
-              {
-                homeImg = ImageIO.read(new File("img/home.png"));
-              }
-              catch(Exception ex)
-              {
-                System.out.println("ERROR: Image(s) missing from img/ directory");
-                System.exit(-1);
-              }
-              g2d_.drawImage(homeImg,
-                             0, 0, img_.getWidth(), img_.getHeight(),
-                             0, 0, homeImg.getWidth(), homeImg.getHeight(),
-                             Color.BLACK, null);
-              setImage();
+              survival();
             } // if(survival mode)
             else if(p.y > 510 && p.y < 565 && p.x > 635 && p.x < 970)  //Sandbox option
             {
@@ -95,11 +84,11 @@ public class Menu extends JPanel
             } 
             else if(p.y > 505 && p.y < 550 && p.x > 640 && p.x < 975)  // Fire Minigame
             {
-              broadcast(4);
+              broadcast(3);
             }
             else if(p.y > 595 && p.y < 650 && p.x > 470 && p.x < 1120)  // Paint Minigame
             {
-              broadcast(5);
+              broadcast(4);
             }
             else if(p.y > 755 && p.y < 810 && p.x > 700 && p.x < 910)  //Back
             {
@@ -120,19 +109,25 @@ public class Menu extends JPanel
           changeBackground(colorArr_[++index_]);
           g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
           g2d_.setXORMode(colorArr_[99 - index_]);
-          g2d_.drawString("CaveSim", 50, 100);
+          g2d_.drawString(strArr_[index_/10], 50, 100);
           g2d_.setPaintMode();
           setImage();
           timer_.restart();
           if(index_ == colorArr_.length - 1)
           {
             timer_.stop();
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             drawMenu();
           }
         }
       }
     );  // new Timer
   }  // public Menu(Dimension)
+
+  public boolean isSurvival()
+  {
+    return isSurvival_;
+  }
 
   public boolean Done()
   {
@@ -151,7 +146,9 @@ public class Menu extends JPanel
 
   public int getSelection()
   {
-    return selection_;
+    int temp = selection_;
+    selection_ = 0;
+    return temp;
   }
 
   private void broadcast(int n)
@@ -200,6 +197,27 @@ public class Menu extends JPanel
       System.out.println("Menu image missing");
     }
 */
+  }
+
+  private void survival() 
+  {
+    isDone_ = true;
+    isSurvival_ = true;
+    BufferedImage homeImg = null;
+    try
+    {
+      homeImg = ImageIO.read(new File("img/home.png"));
+    }
+    catch(Exception ex)
+    {
+      System.out.println("ERROR: Image(s) missing from img/ directory");
+      System.exit(-1);
+    }
+    g2d_.drawImage(homeImg,
+                   0, 0, img_.getWidth(), img_.getHeight(),
+                   0, 0, homeImg.getWidth(), homeImg.getHeight(),
+                   Color.BLACK, null);
+    setImage();
   }
 
   //Updates img_ to the sanbox menu

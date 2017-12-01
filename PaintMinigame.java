@@ -164,6 +164,7 @@ public class PaintMinigame extends JPanel
                            0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
                            Color.BLACK, null);
             setImage();
+isDone_ = true;
           }
           else
             timer_.restart();
@@ -199,6 +200,11 @@ public class PaintMinigame extends JPanel
       correct = 0;
     return correct/count; 
   }  // private double compare()
+
+  public boolean Done()
+  {
+    return isDone_;
+  }
 
   public boolean togglePlay()
   {
