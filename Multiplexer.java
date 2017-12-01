@@ -321,7 +321,8 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
-          save();
+          chooser_.setCurrentDirectory(new File("./Screenshots"));
+          screenshot();
         }
       }
     );  // saveItem.addActionListener
@@ -335,11 +336,19 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          chooser_.setCurrentDirectory(new File("./SavedGames"));
           File outputFile = getFile();
-          if(true)//TODO
+          try
+          {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+            writer.write(food_ + " " + hunger_ + " " + 
+                         boredom_ + " " + intelligence_);
+            writer.close();
+          }
+          catch(Exception exc)
           {
             displayError("Could not load config file. Please " +
-                         "make sure file is of the correct type and try again."); 
+                         "make sure file is of the correct type and try again.");         
           }   
         }
       }
@@ -354,11 +363,20 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          chooser_.setCurrentDirectory(new File("./SavedGames"));
           File inputFile = getFile();
-          if(true)//TODO
+          try
           {
-            displayError("Could not save config file. Please " +
-                         "make sure grid is initialized and try again."); 
+            Scanner s = new Scanner(new BufferedReader(new FileReader(inputFile)));
+            food_ = Integer.parseInt(s.next());
+            hunger_ = Integer.parseInt(s.next());
+            boredom_ = Integer.parseInt(s.next());
+            intelligence_ = Integer.parseInt(s.next());
+          }
+          catch(Exception exc)
+          {
+            displayError("Could not load config file. Please " +
+                         "make sure file is of the correct type and try again.");            
           }
         }
       }
@@ -373,7 +391,20 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
-          //TODO
+          chooser_.setCurrentDirectory(new File("./SavedGames"));
+          File outputFile = getFile();
+          try
+          {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+            writer.write(food_ + " " + hunger_ + " " + 
+                         boredom_ + " " + intelligence_);
+            writer.close();
+          }
+          catch(Exception exc)
+          {
+            displayError("Could not load config file. Please " +
+                         "make sure file is of the correct type and try again.");         
+          }   
           System.exit(0);
         }
       }
@@ -407,6 +438,30 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          //Called on worker thread, but displays on EDT
+          new Thread
+          (
+            new Runnable()
+            {
+              public void run()
+              {
+                addMessageScreen(size_, 4);
+                while(!screen_.Done())
+                {
+                try 
+                {  
+                  Thread.sleep(1000);
+                }
+                catch(InterruptedException ex)
+                {
+                  Thread.currentThread().interrupt();
+                }
+              }
+              addGameMenu(size_, isSurvival_);
+              menu_.togglePlay();
+              }
+            }
+          ).start();
         }
       }
      );
@@ -493,86 +548,6 @@ class Multiplexer extends JFrame
     intelligence_ = 0;
   }
 
-  //Display dialog and parse input for int value
-  private int getInt(String message)
-  {
-    int val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-        return CANCEL;
-      else if(input.isEmpty())
-        return DEFAULT;  
-      val = Integer.parseInt(input);
-    }
-    catch(NumberFormatException e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input integer.", "ERROR",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getInt(message);
-    }
-    if(val < 1)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter an integer x >= 1.", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getInt(message);
-    }
-    return val;
-  }  // private int getInput()
-
-  //Display dialog and parse input for double
-  private double getDbl(String message)
-  {
-    double val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-         return CANCEL; 
-      else if(input.isEmpty())
-        return DEFAULT;
-      val = Double.parseDouble(input);
-    } 
-    catch(NumberFormatException e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input.", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getDbl(message);
-    }
-    return val;
-  }  // private double getDbl();
-
-  //Display dialog and parse input for double with min, max
-  private double getDbl(String message, double min, double max)
-  {
-    double val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-         return CANCEL; 
-      else if(input.isEmpty())
-        return DEFAULT;
-      val = Double.parseDouble(input);
-    } 
-    catch(NumberFormatException e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input.", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getDbl(message, min, max);
-    }
-    if(val < min || val > max)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input " + min + 
-                                    " <= x <= " + max + ".", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getDbl(message, min, max);
-                                    
-    }
-    return val;
-  }  // private double getDbl(); min, max
-
   private void displayError(String str)
   {
     JOptionPane.showMessageDialog(this, str, "ERROR!", JOptionPane.ERROR_MESSAGE);
@@ -589,12 +564,16 @@ class Multiplexer extends JFrame
   }
 
   //Save current BufferedImage to .png file
-  private void save()
+  private void screenshot()
   {
     File outputFile = getFile();
+    BufferedImage img = new BufferedImage((int)getWidth(), (int)getHeight(), 
+                                          BufferedImage.TYPE_INT_ARGB);
+    paint(img.getGraphics());
+    
     try
     {
-      javax.imageio.ImageIO.write(cutscene_.getImage(), "png", outputFile);
+      javax.imageio.ImageIO.write(img, "png", outputFile);
     }
     catch (Exception e)
     {

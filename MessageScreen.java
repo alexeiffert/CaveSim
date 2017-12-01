@@ -42,12 +42,13 @@ public class MessageScreen extends JPanel
                           RenderingHints.VALUE_ANTIALIAS_ON);
 
     //Images array
-    BufferedImage msg[] = new BufferedImage[3];
+    BufferedImage msg[] = new BufferedImage[5];
     try
     {
       msg[0] = ImageIO.read(new File("img/hunger.png"));
       msg[1] = ImageIO.read(new File("img/boredom.png"));
       msg[2] = ImageIO.read(new File("img/victory.png"));
+      msg[4] = ImageIO.read(new File("img/help.png"));
     }
     catch(IOException e)
     {
