@@ -27,8 +27,10 @@ class Multiplexer extends JFrame
   private static final int CANCEL = -123456, DEFAULT = -654321;
 
   private final JFileChooser chooser_;
+  private Dimension size_;
   private Cutscene cutscene_;
   private Menu menu_;
+  private boolean isSurvival_;
   private FireMinigame fire_;
   private PaintMinigame paint_;
 
@@ -49,10 +51,12 @@ class Multiplexer extends JFrame
     this.addMenu();
 
     //Initialize game components
-    cutscene_ = new Cutscene(size);
-    menu_ = new Menu(size);
-    fire_ = new FireMinigame(size);
-    paint_ = new PaintMinigame(size);
+    size_ = size;
+    cutscene_ = null;
+    menu_ = null;
+    isSurvival_ = false;
+    fire_ = null;
+    paint_ = null;
   }
 
     //Plays cutscene and starts the main game infinite loop
@@ -77,7 +81,7 @@ class Multiplexer extends JFrame
     revalidate();
     repaint();
 */
-    this.addGameMenu();
+    this.addGameMenu(size_, isSurvival_);
     menu_.togglePlay();
     while(true)
     {
@@ -106,7 +110,7 @@ class Multiplexer extends JFrame
         case 3:  // Fire minigame
         {
           menu_.togglePlay();
-          this.addFireMinigame();  // Added in constructor for key bindings
+          this.addFireMinigame(size_); 
           fire_.togglePlay();
           while(!fire_.Done())
           {
@@ -119,13 +123,14 @@ class Multiplexer extends JFrame
               Thread.currentThread().interrupt();
             }
           }
-          this.addGameMenu();
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
           break;
         }
         case 4:  // Paint minigame
         {
           menu_.togglePlay();
-          this.addPaintMinigame();
+          this.addPaintMinigame(size_);
           paint_.togglePlay();
           while(!paint_.Done())
           {
@@ -138,12 +143,19 @@ class Multiplexer extends JFrame
              Thread.currentThread().interrupt();
             }
           }
-          this.addGameMenu();
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
           break;
         }
         case 5:  // Cups minigame
         {
           break;
+        }
+        case 6:
+        {
+          isSurvival_ = true;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
         }
       } // switch
     }  // while true
@@ -268,8 +280,9 @@ class Multiplexer extends JFrame
   //-------------------------- Helper Functions -------------------------//
   //---------------------------------------------------------------------//
 
-  private void addCutscene()
+  private void addCutscene(Dimension size)
   { 
+    cutscene_ = new Cutscene(size);
     getContentPane().removeAll();
     getContentPane().add(cutscene_, BorderLayout.CENTER);
     pack();
@@ -277,8 +290,9 @@ class Multiplexer extends JFrame
     repaint();
   }
  
-  private void addGameMenu()
+  private void addGameMenu(Dimension size, boolean isSurvival)
   {
+    menu_ = new Menu(size, isSurvival);
     getContentPane().removeAll();
     getContentPane().add(menu_, BorderLayout.CENTER);
     pack();
@@ -286,8 +300,9 @@ class Multiplexer extends JFrame
     repaint();
   }
 
-  private void addFireMinigame()
+  private void addFireMinigame(Dimension size)
   {
+    fire_ = new FireMinigame(size);
     getContentPane().removeAll();
     getContentPane().add(fire_, BorderLayout.CENTER);
     pack();
@@ -297,8 +312,9 @@ class Multiplexer extends JFrame
     repaint();
   }
 
-  private void addPaintMinigame()
+  private void addPaintMinigame(Dimension size)
   {
+    paint_ = new PaintMinigame(size);
     getContentPane().removeAll();
     getContentPane().add(paint_, BorderLayout.CENTER);
     pack();
