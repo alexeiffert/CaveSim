@@ -27,7 +27,7 @@ public class PaintMinigame extends JPanel
   private BufferedImage img_;  //Display img
   private Graphics2D g2d_, g2d2_;  //g2d2_ handles the pen, g2d_ everything else
   private Timer timer_;
-  private boolean isPlay_, isDone_; 
+  private boolean isPlay_, isClickable_, isDone_; 
 
   //Game variables
   private BufferedImage compare_[];  //Comparison drawings
@@ -49,7 +49,7 @@ public class PaintMinigame extends JPanel
     index_ = 0;
     prev_ = null;
     canDraw_ = true;  //Master flag
-    isPlay_ = isDraw_ = false;
+    isPlay_ = isClickable_ = isDraw_ = false;
     index_ = (new Random()).nextInt(3)*2 + 2;  //Choose random image to draw
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
@@ -120,6 +120,8 @@ public class PaintMinigame extends JPanel
        
         public void mouseReleased(MouseEvent e)
         {
+          if(isClickable_)
+            isDone_ = true;
           isDraw_ = false;
         }
       }
@@ -157,14 +159,77 @@ public class PaintMinigame extends JPanel
           if(time_ == 0)
           {
             canDraw_ = isDraw_ = false;
+            isClickable_ = true;
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-            System.out.println(compare());
+            final double score = Math.round(compare())*100;
+            new Thread
+            (
+              new Runnable()
+              {
+                public void run()
+                {
+                  SwingUtilities.invokeLater
+                  (
+                    new Runnable()
+                    {
+                      public void run()
+                      {
+                        g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
+                        if(score < 10) 
+                        {
+                          g2d_.drawString("You scored " + score + " and gained 0 intelligence points.", 
+                                          0, img_.getHeight()/2);
+                          g2d_.drawString("Try to do better next time.", 0, img_.getHeight()/2 + 60);
+                        }
+                        else if(score < 20) 
+                        {
+                          g2d_.drawString("You scored " + score + " and gained 1 intelligence point.", 
+                                          0, img_.getHeight()/2);
+                          g2d_.drawString("Try to do better next time.", 0, img_.getHeight()/2 + 60);
+                        }
+                        else if(score < 40) 
+                        {
+                          g2d_.drawString("You scored " + score + " and gained 2 intelligence points.", 
+                                          0, img_.getHeight()/2);
+                          g2d_.drawString("Are you remembering the scenes?", 0, img_.getHeight()/2 + 60);
+                        }
+                        else if(score < 60) 
+                        {
+                          g2d_.drawString("You scored " + score + " and gained 3 intelligence points.", 
+                                          0, img_.getHeight()/2);
+                          g2d_.drawString("You're turning into quite the cave artist.",
+                                          0, img_.getHeight()/2 + 60);
+                        }
+                        else  
+                        {
+                          g2d_.drawString("You scored " + score + " and gained 4 intelligence points.",
+                                          0, img_.getHeight()/2);
+                          g2d_.drawString("Your masterpiece was saved in the Screenshots/ directory.", 
+                                          0, img_.getHeight()/2 + 60);
+                          String randomStr = "Screenshots/" + (new Random()).nextInt(100000) + "";
+                          File outputFile = new File(randomStr);
+                          try
+                          {
+                            javax.imageio.ImageIO.write(img_, "png", outputFile);
+                          }
+                          catch(Exception e)
+                          {
+                            System.out.println("ERROR: There was an error taking a screenshot.");
+                          }
+                        }
+                        g2d_.drawString("[Click anywhere to continue]", 0, img_.getHeight()/2 + 120);
+                        setImage();
+                      }
+                    }
+                  );
+                }
+              }
+            ).start();
             g2d_.drawImage(cave_[index_],
                            0, 0, img_.getWidth(), img_.getHeight(),
                            0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
                            Color.BLACK, null);
             setImage();
-isDone_ = true;
           }
           else
             timer_.restart();
@@ -195,7 +260,7 @@ isDone_ = true;
           ++incorrect;
       }
     }
-    correct -= incorrect*.05;  //Weight incorrect pixels
+    correct -= incorrect*.1;  //Weight incorrect pixels
     if(correct < 0)
       correct = 0;
     return correct/count; 
