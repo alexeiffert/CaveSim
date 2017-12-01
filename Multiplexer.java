@@ -27,11 +27,12 @@ class Multiplexer extends JFrame
   private static final int CANCEL = -123456, DEFAULT = -654321;
 
   private final JFileChooser chooser_;
+  private Dimension size_;
   private Cutscene cutscene_;
   private Menu menu_;
+  private boolean isSurvival_;
   private FireMinigame fire_;
   private PaintMinigame paint_;
-  private ClickPanel click_;
 
   //Constructor
   public Multiplexer(Dimension size)
@@ -49,62 +50,116 @@ class Multiplexer extends JFrame
     //Add menu bar
     this.addMenu();
 
-    //Add game components
-    //this.addCutscene(size);
-    this.addGameMenu(size);
-    this.addFireMinigame(size);
-    this.addPaintMinigame(size);
+    //Initialize game components
+    size_ = size;
+    cutscene_ = null;
+    menu_ = null;
+    isSurvival_ = false;
+    fire_ = null;
+    paint_ = null;
   }
 
-   //Must be called externally so that the GUI doesn't hang
-   public void startCaveSim()
-   {
+    //Plays cutscene and starts the main game infinite loop
+    //Must be called externally so that the GUI doesn't hang
+  public void startCaveSim()
+  {
 /*
-     cutscene_.togglePlay();
-     while(!cutscene_.Done())
-     {
-       try        
-       {
-         Thread.sleep(1000);
-       }  
-       catch(InterruptedException ex) 
-       {
-         Thread.currentThread().interrupt();
-       }
-     }
-     this.remove(cutscene_);
-     revalidate();
-     repaint();
+    this.addCutscene(size_);
+    cutscene_.togglePlay();
+    while(!cutscene_.Done())
+    {
+      try        
+      {
+        Thread.sleep(1000);
+      }  
+      catch(InterruptedException ex) 
+      {
+        Thread.currentThread().interrupt();
+      }
+    }
+    this.remove(cutscene_);
+    revalidate();
+    repaint();
 */
-     menu_.togglePlay();
-     while(!menu_.Done())
-     {
-       try        
-       {
-         Thread.sleep(1000);
-       } 
-       catch(InterruptedException ex) 
-       {
-         Thread.currentThread().interrupt();
-       }
-     }
-     this.remove(menu_);
-     revalidate();
-     repaint();
-     fire_.togglePlay();
-     while(!fire_.Done())
-     {
-       try 
-       {
-         Thread.sleep(1000);
-       }
-       catch(InterruptedException ex)
-       {
-         Thread.currentThread().interrupt();
-       }
-     }
-     paint_.togglePlay();
-   }
+    this.addGameMenu(size_, isSurvival_);
+    menu_.togglePlay();
+    while(true)
+    {
+      switch(menu_.getSelection())
+      {
+        case 0:  // No selection
+        {
+          try        
+          {
+            Thread.sleep(500);
+          } 
+          catch(InterruptedException ex) 
+          {
+            Thread.currentThread().interrupt();
+          }
+          break;
+        }
+        case 1:  // Fish minigame
+        {
+          break;
+        }
+        case 2:  // Hunt minigame
+        {
+          break;
+        }
+        case 3:  // Fire minigame
+        {
+          menu_.togglePlay();
+          this.addFireMinigame(size_); 
+          fire_.togglePlay();
+          while(!fire_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+          break;
+        }
+        case 4:  // Paint minigame
+        {
+          menu_.togglePlay();
+          this.addPaintMinigame(size_);
+          paint_.togglePlay();
+          while(!paint_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+             Thread.currentThread().interrupt();
+            }
+          }
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+          break;
+        }
+        case 5:  // Cups minigame
+        {
+          break;
+        }
+        case 6:
+        {
+          isSurvival_ = true;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+      } // switch
+    }  // while true
+  }  // public void startCaveSim()
 
   //Add menu to frame
   private void addMenu()
@@ -167,21 +222,6 @@ class Multiplexer extends JFrame
     );
     fileMenu.add(loadSystemItem);
 
-/*
-    //Add "Randomly Populated World" option
-    JMenuItem randomWorldItem = new JMenuItem("Randomly Populated World");
-    randomWorldItem.addActionListener
-    (
-      new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-        }
-      }
-    );  // randomWorldItem.addActionListener
-    fileMenu.add(randomWorldItem);
-*/
-
     //Add "Save & Exit" option
     JMenuItem saveExitItem = new JMenuItem("Save & Exit...");
     saveExitItem.addActionListener
@@ -243,30 +283,43 @@ class Multiplexer extends JFrame
   private void addCutscene(Dimension size)
   { 
     cutscene_ = new Cutscene(size);
+    getContentPane().removeAll();
     getContentPane().add(cutscene_, BorderLayout.CENTER);
     pack();
+    revalidate();
+    repaint();
   }
  
-  private void addGameMenu(Dimension size)
+  private void addGameMenu(Dimension size, boolean isSurvival)
   {
-    menu_ = new Menu(size);
+    menu_ = new Menu(size, isSurvival);
+    getContentPane().removeAll();
     getContentPane().add(menu_, BorderLayout.CENTER);
     pack();
+    revalidate();
+    repaint();
   }
 
   private void addFireMinigame(Dimension size)
   {
     fire_ = new FireMinigame(size);
+    getContentPane().removeAll();
     getContentPane().add(fire_, BorderLayout.CENTER);
     pack();
     fire_.setFocusable(true); 
+    fire_.requestFocus();
+    revalidate();
+    repaint();
   }
 
   private void addPaintMinigame(Dimension size)
   {
     paint_ = new PaintMinigame(size);
+    getContentPane().removeAll();
     getContentPane().add(paint_, BorderLayout.CENTER);
     pack();
+    revalidate();
+    repaint();
   }
 
   //Display dialog and parse input for int value
