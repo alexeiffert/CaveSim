@@ -21,7 +21,7 @@ import java.util.Scanner;
 
 public class Menu extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 16;  // i.e. ~60fps
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 0;  // As fast as will render 
 
   private BufferedImage img_;
   private Graphics2D g2d_;

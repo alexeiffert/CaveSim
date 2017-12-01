@@ -12,6 +12,7 @@ CLASSES = \
         FireMinigame.java \
         PaintMinigame.java \
         HuntMinigame.java \
+        MessageScreen.java \
 
 default: classes
 

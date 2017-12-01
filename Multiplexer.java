@@ -25,15 +25,23 @@ class Multiplexer extends JFrame
 {
   //Constants
   private static final int CANCEL = -123456, DEFAULT = -654321;
+  private static final int TIMER = 120000;  // 2 minutes, ++hunger, ++boredom
+  private static final int HUNGER = 5;
+  private static final int BOREDOM = 5;
 
   private final JFileChooser chooser_;
   private Dimension size_;
+  private JLabel stats_;
+  private Timer timer_;
+  int food_, hunger_, boredom_, intelligence_;
+
   private Cutscene cutscene_;
   private Menu menu_;
   private boolean isSurvival_;
   private FireMinigame fire_;
   private PaintMinigame paint_;
   private HuntMinigame hunt_;
+  private MessageScreen screen_;
 
   //Constructor
   public Multiplexer(Dimension size)
@@ -52,6 +60,13 @@ class Multiplexer extends JFrame
     this.addMenu();
 
     //Initialize game components
+    stats_ = new JLabel("", SwingConstants.CENTER);
+    stats_.setOpaque(true);
+    stats_.setBackground(Color.BLACK);
+    food_ = 0;
+    hunger_ = HUNGER;
+    boredom_ = BOREDOM;
+    intelligence_ = 0;
     size_ = size;
     cutscene_ = null;
     menu_ = null;
@@ -59,6 +74,17 @@ class Multiplexer extends JFrame
     fire_ = null;
     paint_ = null;
     hunt_ = null;
+
+    //Attrition timer
+    timer_ = new Timer(TIMER, new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          ++boredom_;
+          ++hunger_;
+        }
+      });
+    timer_.start();
   }
 
     //Plays cutscene and starts the main game infinite loop
@@ -87,6 +113,84 @@ class Multiplexer extends JFrame
     menu_.togglePlay();
     while(true)
     {
+      if(isSurvival_)
+      {
+        if(food_ > 5)
+          food_ = 5;
+        else if(food_ < 0)
+          food_ = 0;
+        if(hunger_ < 0)
+          hunger_ = 0;
+        if(boredom_ < 0)
+          boredom_ = 0;
+        if(intelligence_ < 0)
+          intelligence_ = 0;
+        stats_.setText("Food: " + food_ + " Hunger: " + hunger_ + 
+                       " Boredom: " + boredom_ + " Intelligence " + 
+                       intelligence_);
+        stats_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
+        this.getContentPane().add(stats_, BorderLayout.NORTH);
+        pack(); 
+        revalidate();
+        repaint();
+        if(hunger_ >= 10)
+        {
+          addMessageScreen(size_, 0);
+          while(!screen_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          resetStats();
+          isSurvival_ = false;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+        else if(boredom_ >= 10)
+        {
+          addMessageScreen(size_, 1);
+          while(!screen_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          resetStats();
+          isSurvival_ = false;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+        else if(intelligence_ >= 5)
+        {
+          addMessageScreen(size_, 2);
+          while(!screen_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          resetStats();
+          isSurvival_ = false;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+      }
       switch(menu_.getSelection())
       {
         case 0:  // No selection
@@ -103,6 +207,10 @@ class Multiplexer extends JFrame
         }
         case 1:  // Fish minigame
         {
+          ++boredom_;
+          //food_ += fish_.getScore();
+          //if(fish_.getScore() > 5)
+            ++intelligence_;
           break;
         }
         case 2:  // Hunt minigame
@@ -120,6 +228,10 @@ class Multiplexer extends JFrame
               Thread.currentThread().interrupt();
             }
           }
+          ++boredom_;
+          food_ += hunt_.getScore();
+          if(hunt_.getScore() > 5)
+            ++intelligence_;
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
           break;
@@ -138,6 +250,19 @@ class Multiplexer extends JFrame
             {
               Thread.currentThread().interrupt();
             }
+          }
+          if(fire_.success())
+          {
+            --boredom_;
+            hunger_ -= food_;
+            food_ = 0;
+            ++intelligence_;
+          }
+          else
+          {
+            --food_;
+            ++hunger_;
+            --intelligence_;
           }
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
@@ -158,6 +283,9 @@ class Multiplexer extends JFrame
              Thread.currentThread().interrupt();
             }
           }
+          --boredom_;
+          ++hunger_;
+          intelligence_ += paint_.getScore();
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
           break;
@@ -345,6 +473,24 @@ class Multiplexer extends JFrame
     pack();
     revalidate();
     repaint();
+  }
+
+  private void addMessageScreen(Dimension size, int index)
+  {
+    screen_ = new MessageScreen(size, index);
+    getContentPane().removeAll();
+    getContentPane().add(screen_, BorderLayout.CENTER);
+    pack();
+    revalidate();
+    repaint();
+  }
+
+  private void resetStats()
+  {
+    hunger_ = HUNGER;
+    boredom_ = BOREDOM;
+    food_ = 0;
+    intelligence_ = 0;
   }
 
   //Display dialog and parse input for int value

@@ -28,6 +28,7 @@ public class PaintMinigame extends JPanel
   private Graphics2D g2d_, g2d2_;  //g2d2_ handles the pen, g2d_ everything else
   private Timer timer_;
   private boolean isPlay_, isClickable_, isDone_; 
+  private int score_;
 
   //Game variables
   private BufferedImage compare_[];  //Comparison drawings
@@ -45,6 +46,7 @@ public class PaintMinigame extends JPanel
     setCursor(new Cursor(Cursor.HAND_CURSOR));
 
     //Initialize data members & visual components
+    score_ = 0;
     time_ = TIME;
     index_ = 0;
     prev_ = null;
@@ -162,6 +164,7 @@ public class PaintMinigame extends JPanel
             isClickable_ = true;
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             final double score = Math.round(compare())*100;
+            score_ = (int)score/20;
             new Thread
             (
               new Runnable()
@@ -175,35 +178,19 @@ public class PaintMinigame extends JPanel
                       public void run()
                       {
                         g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
+                        g2d_.drawString("You scored " + score + " and gained " + score_ + " intelligence points.", 
+                                        0, img_.getHeight()/2);
                         if(score < 10) 
-                        {
-                          g2d_.drawString("You scored " + score + " and gained 0 intelligence points.", 
-                                          0, img_.getHeight()/2);
                           g2d_.drawString("Try to do better next time.", 0, img_.getHeight()/2 + 60);
-                        }
                         else if(score < 20) 
-                        {
-                          g2d_.drawString("You scored " + score + " and gained 1 intelligence point.", 
-                                          0, img_.getHeight()/2);
                           g2d_.drawString("Try to do better next time.", 0, img_.getHeight()/2 + 60);
-                        }
                         else if(score < 40) 
-                        {
-                          g2d_.drawString("You scored " + score + " and gained 2 intelligence points.", 
-                                          0, img_.getHeight()/2);
                           g2d_.drawString("Are you remembering the scenes?", 0, img_.getHeight()/2 + 60);
-                        }
                         else if(score < 60) 
-                        {
-                          g2d_.drawString("You scored " + score + " and gained 3 intelligence points.", 
-                                          0, img_.getHeight()/2);
                           g2d_.drawString("You're turning into quite the cave artist.",
                                           0, img_.getHeight()/2 + 60);
-                        }
                         else  
                         {
-                          g2d_.drawString("You scored " + score + " and gained 4 intelligence points.",
-                                          0, img_.getHeight()/2);
                           g2d_.drawString("Your masterpiece was saved in the Screenshots/ directory.", 
                                           0, img_.getHeight()/2 + 60);
                           String randomStr = "Screenshots/" + (new Random()).nextInt(100000) + "";
@@ -238,6 +225,31 @@ public class PaintMinigame extends JPanel
     );  // new Timer
   }  // public PaintMinigame(Dimension)
 
+  public int getScore()
+  {
+    return score_;
+  }
+
+  public boolean Done()
+  {
+    return isDone_;
+  }
+
+  public boolean togglePlay()
+  {
+    isPlay_ = !isPlay_;
+    if(isPlay_)
+      timer_.restart();
+    else
+      timer_.stop();
+    return isPlay_;
+  }
+
+  public BufferedImage getImage()
+  {
+    return img_;
+  }
+  
   //Compares the user drawn part to the "missing" part of
   //the image. Returns the ratio drawn correctly
   private double compare()
@@ -266,26 +278,6 @@ public class PaintMinigame extends JPanel
     return correct/count; 
   }  // private double compare()
 
-  public boolean Done()
-  {
-    return isDone_;
-  }
-
-  public boolean togglePlay()
-  {
-    isPlay_ = !isPlay_;
-    if(isPlay_)
-      timer_.restart();
-    else
-      timer_.stop();
-    return isPlay_;
-  }
-
-  public BufferedImage getImage()
-  {
-    return img_;
-  }
-  
   //setImage() is always sent to EDT
   public void setImage()
   {

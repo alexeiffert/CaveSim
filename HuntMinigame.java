@@ -20,17 +20,21 @@ import java.util.Random;
 
 public class HuntMinigame extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 2000;
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 900;
   private static final int TIME = 20;
 
   //Main animation variables
   private BufferedImage img_;  //Display img
-  private Graphics2D g2d_, g2d2_;  //g2d2_ handles the pen, g2d_ everything else
+  private Graphics2D g2d_;  
   private Timer timer_;
   private boolean isPlay_, isClickable_, isDone_; 
+  private int score_;
 
   //Game variables
-  Random rng_;
+  private Random rng_;
+  private MouseAdapter oldMA_;
+  private MouseMotionAdapter oldMMA_;
+  private int time_, points_;
 
   public HuntMinigame(Dimension size) 
   {
@@ -40,11 +44,18 @@ public class HuntMinigame extends JPanel
     setPreferredSize(size);
 
     //Initialize data members & visual components
+    score_ = 0;
     isPlay_ = isClickable_ = false;
     rng_ = new Random();
-    img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    oldMA_ = null;
+    oldMMA_ = null;
+    time_ = TIME;
+    points_ = 0;
+    img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), 
+                             BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
-    g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                          RenderingHints.VALUE_ANTIALIAS_ON);
 
     //Images array
     BufferedImage hunt[] = new BufferedImage[15];
@@ -71,10 +82,15 @@ public class HuntMinigame extends JPanel
       System.out.println("ERROR: Image(s) missing from img/ directory");
       System.exit(-1);
     }
-      g2d_.drawImage(hunt[0],
-                     0, 0, img_.getWidth(), img_.getHeight(),
-                     0, 0, hunt[0].getWidth(), hunt[0].getHeight(),
-                     Color.BLACK, null);
+/*
+    g2d_.drawImage(hunt[0],
+                   0, 0, img_.getWidth(), img_.getHeight(),
+                   0, 0, hunt[0].getWidth(), hunt[0].getHeight(),
+                   Color.BLACK, null);
+*/
+g2d_.setColor(new Color(0, true));
+g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+setImage();
 
     addMouseListener
     (
@@ -112,23 +128,98 @@ public class HuntMinigame extends JPanel
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          int startX = rng_.nextInt(img_.getWidth() - 50);
-          int startY = rng_.nextInt(img_.getHeight()/2 - 50) + img_.getHeight()/2;
+          g2d_.setColor(new Color(0xFF000000, true));
+          g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+          g2d_.setColor(Color.WHITE);
+          g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 150));
+          g2d_.drawString("Score: " + points_, 50, 200);
+          int startX = rng_.nextInt(img_.getWidth() - 51);
+          int startY = rng_.nextInt(img_.getHeight()/2 - 51) + img_.getHeight()/2;
           int index = rng_.nextInt(14) + 1;
-          g2d_.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.3f));
           g2d_.drawImage(hunt[index],
                          startX, startY, (startX + 50), (startY + 50),
                          0, 0, hunt[index].getWidth(), hunt[index].getHeight(),
                          Color.BLACK, null);
+          
+          //Dynamically create mouse adapters
+          MouseAdapter MA = new MouseAdapter()
+            {
+              public void mouseReleased(MouseEvent e)
+              {
+                Point p = e.getPoint();
+                if(p.x > startX && p.x < startX + 50 && p.y > startY && p.y < startY + 50)
+                  ++points_;
+                else
+                  --points_;
+                g2d_.setColor(new Color(0xFF000000, true));
+                g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+                g2d_.setColor(Color.WHITE);
+                g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 150));
+                g2d_.drawString("Score: " + points_, 50, 200);
+                setImage();
+              }
+            };
+          MouseMotionAdapter MMA = new MouseMotionAdapter()
+            {
+              public void mouseMoved(MouseEvent e)
+              {
+                Point p = e.getPoint();
+                if(p.x > startX && p.x < startX + 50 && p.y > startY && p.y < startY + 50)
+                  setCursor(new Cursor(Cursor.HAND_CURSOR));
+                else
+                  setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+              }
+            };
+          removeMouseListener(oldMA_);
+          removeMouseMotionListener(oldMMA_);
+              
           setImage();
-          timer_.restart();
+          if(--time_ == 0)
+          {
+            score_ = points_/5;
+            g2d_.setColor(new Color(0xFF000000, true));
+            g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+            g2d_.setColor(Color.WHITE);
+            g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
+            g2d_.drawString("You caught " + points_/5 + " critters.", 
+                             0, img_.getHeight()/2);
+            if(points_ < 4) 
+              g2d_.drawString("Try to do better next time.", 0, img_.getHeight()/2 + 60);
+            else if(points_ < 7) 
+              g2d_.drawString("That's okay, some cavemen were gatherers.", 0, img_.getHeight()/2 + 60);
+            else if(points_ < 13) 
+              g2d_.drawString("You must've been hungry.", 0, img_.getHeight()/2 + 60);
+            else 
+              g2d_.drawString("Creatures beware.", 0, img_.getHeight()/2 + 60);
+            g2d_.drawString("[Click anywhere to continue]", 0, img_.getHeight()/2 + 120);
+            addMouseListener
+            (
+              new MouseAdapter()
+              {
+                public void mouseReleased(MouseEvent e)
+                {
+                  isDone_ = true;
+                }
+              }
+            );
+          }  // if(time_ == 0)
+          else
+          {
+            addMouseListener(MA);
+            addMouseMotionListener(MMA);
+            oldMA_ = MA;
+            oldMMA_ = MMA;
+            timer_.restart();
+          }
         }
       }
     );  // new Timer
   }  // public HuntMinigame(Dimension)
 
-  //Compares the user drawn part to the "missing" part of
-  //the image. Returns the ratio drawn correctly
+  public int getScore()
+  {
+    return score_;
+  }
 
   public boolean Done()
   {
