@@ -7,10 +7,12 @@ JC = javac
 CLASSES = \
 	CaveSim.java \
 	Multiplexer.java \
+        Menu.java \
 	Cutscene.java \
         FireMinigame.java \
-        Menu.java \
-        PaintMinigame.java
+        PaintMinigame.java \
+        HuntMinigame.java \
+        MessageScreen.java \
 
 default: classes
 

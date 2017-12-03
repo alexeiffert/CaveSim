@@ -25,14 +25,23 @@ class Multiplexer extends JFrame
 {
   //Constants
   private static final int CANCEL = -123456, DEFAULT = -654321;
+  private static final int TIMER = 120000;  // 2 minutes, ++hunger, ++boredom
+  private static final int HUNGER = 5;
+  private static final int BOREDOM = 5;
 
   private final JFileChooser chooser_;
   private Dimension size_;
+  private JLabel stats_;
+  private Timer timer_;
+  int food_, hunger_, boredom_, intelligence_;
+
   private Cutscene cutscene_;
   private Menu menu_;
   private boolean isSurvival_;
   private FireMinigame fire_;
   private PaintMinigame paint_;
+  private HuntMinigame hunt_;
+  private MessageScreen screen_;
 
   //Constructor
   public Multiplexer(Dimension size)
@@ -51,19 +60,40 @@ class Multiplexer extends JFrame
     this.addMenu();
 
     //Initialize game components
+    stats_ = new JLabel("", SwingConstants.CENTER);
+    stats_.setOpaque(true);
+    stats_.setBackground(Color.BLACK);
+    food_ = 0;
+    hunger_ = HUNGER;
+    boredom_ = BOREDOM;
+    intelligence_ = 0;
     size_ = size;
     cutscene_ = null;
     menu_ = null;
     isSurvival_ = false;
     fire_ = null;
     paint_ = null;
+    hunt_ = null;
+
+    //Attrition timer
+    timer_ = new Timer(TIMER, new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          if(isSurvival_)
+          {
+            ++boredom_;
+            ++hunger_;
+          }
+        }
+      });
+    timer_.start();
   }
 
     //Plays cutscene and starts the main game infinite loop
     //Must be called externally so that the GUI doesn't hang
   public void startCaveSim()
   {
-/*
     this.addCutscene(size_);
     cutscene_.togglePlay();
     while(!cutscene_.Done())
@@ -80,11 +110,89 @@ class Multiplexer extends JFrame
     this.remove(cutscene_);
     revalidate();
     repaint();
-*/
     this.addGameMenu(size_, isSurvival_);
     menu_.togglePlay();
     while(true)
     {
+      if(isSurvival_)
+      {
+        if(food_ > 5)
+          food_ = 5;
+        else if(food_ < 0)
+          food_ = 0;
+        if(hunger_ < 0)
+          hunger_ = 0;
+        if(boredom_ < 0)
+          boredom_ = 0;
+        if(intelligence_ < 0)
+          intelligence_ = 0;
+        stats_.setText("Food: " + food_ + " Hunger: " + hunger_ + 
+                       " Boredom: " + boredom_ + " Intelligence " + 
+                       intelligence_);
+        stats_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
+        this.getContentPane().add(stats_, BorderLayout.NORTH);
+        pack(); 
+        revalidate();
+        repaint();
+        if(hunger_ >= 10)
+        {
+          addMessageScreen(size_, 0);
+          while(!screen_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          resetStats();
+          isSurvival_ = false;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+        else if(boredom_ >= 10)
+        {
+          addMessageScreen(size_, 1);
+          while(!screen_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          resetStats();
+          isSurvival_ = false;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+        else if(intelligence_ >= 5)
+        {
+          addMessageScreen(size_, 2);
+          while(!screen_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          resetStats();
+          isSurvival_ = false;
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
+        }
+      }  //if Survival Mode only
+
       switch(menu_.getSelection())
       {
         case 0:  // No selection
@@ -101,15 +209,43 @@ class Multiplexer extends JFrame
         }
         case 1:  // Fish minigame
         {
+          if(isSurvival_)
+          {
+            ++boredom_;
+            //food_ += fish_.getScore();
+            //if(fish_.getScore() > 5)
+            ++intelligence_;
+          }
           break;
         }
         case 2:  // Hunt minigame
         {
+          this.addHuntMinigame(size_); 
+          hunt_.togglePlay();
+          while(!hunt_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
+          if(isSurvival_)
+          {
+            ++boredom_;
+            food_ += hunt_.getScore();
+            if(hunt_.getScore() > 5)
+              ++intelligence_;
+          }
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
           break;
         }
         case 3:  // Fire minigame
         {
-          menu_.togglePlay();
           this.addFireMinigame(size_); 
           fire_.togglePlay();
           while(!fire_.Done())
@@ -123,13 +259,28 @@ class Multiplexer extends JFrame
               Thread.currentThread().interrupt();
             }
           }
+          if(isSurvival_)
+          {
+            if(fire_.success())
+            {
+              --boredom_;
+              hunger_ -= food_;
+              food_ = 0;
+              ++intelligence_;
+            }
+            else
+            {
+              --food_;
+              ++hunger_;
+              --intelligence_;
+            }
+          }
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
           break;
         }
         case 4:  // Paint minigame
         {
-          menu_.togglePlay();
           this.addPaintMinigame(size_);
           paint_.togglePlay();
           while(!paint_.Done())
@@ -143,6 +294,12 @@ class Multiplexer extends JFrame
              Thread.currentThread().interrupt();
             }
           }
+          if(isSurvival_)
+          {
+            --boredom_;
+            ++hunger_;
+            intelligence_ += paint_.getScore();
+          } 
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
           break;
@@ -178,7 +335,8 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
-          save();
+          chooser_.setCurrentDirectory(new File("./Screenshots"));
+          screenshot();
         }
       }
     );  // saveItem.addActionListener
@@ -192,11 +350,24 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          if(!isSurvival_)
+          {
+            displayError("Nothing to save!");
+            return;
+          }
+          chooser_.setCurrentDirectory(new File("./SavedGames"));
           File outputFile = getFile();
-          if(true)//TODO
+          try
+          {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+            writer.write(food_ + " " + hunger_ + " " + 
+                         boredom_ + " " + intelligence_);
+            writer.close();
+          }
+          catch(Exception exc)
           {
             displayError("Could not load config file. Please " +
-                         "make sure file is of the correct type and try again."); 
+                         "make sure file is of the correct type and try again.");         
           }   
         }
       }
@@ -211,11 +382,20 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          chooser_.setCurrentDirectory(new File("./SavedGames"));
           File inputFile = getFile();
-          if(true)//TODO
+          try
           {
-            displayError("Could not save config file. Please " +
-                         "make sure grid is initialized and try again."); 
+            Scanner s = new Scanner(new BufferedReader(new FileReader(inputFile)));
+            food_ = Integer.parseInt(s.next());
+            hunger_ = Integer.parseInt(s.next());
+            boredom_ = Integer.parseInt(s.next());
+            intelligence_ = Integer.parseInt(s.next());
+          }
+          catch(Exception exc)
+          {
+            displayError("Could not load config file. Please " +
+                         "make sure file is of the correct type and try again.");            
           }
         }
       }
@@ -229,8 +409,26 @@ class Multiplexer extends JFrame
       new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
-        {
-          //TODO
+        {          
+          if(!isSurvival_)
+          {
+            displayError("Nothing to save!");
+            return;
+          }
+          chooser_.setCurrentDirectory(new File("./SavedGames"));
+          File outputFile = getFile();
+          try
+          {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+            writer.write(food_ + " " + hunger_ + " " + 
+                         boredom_ + " " + intelligence_);
+            writer.close();
+          }
+          catch(Exception exc)
+          {
+            displayError("Could not load config file. Please " +
+                         "make sure file is of the correct type and try again.");         
+          }   
           System.exit(0);
         }
       }
@@ -264,6 +462,30 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
+          //Called on worker thread, but displays on EDT
+          new Thread
+          (
+            new Runnable()
+            {
+              public void run()
+              {
+                addMessageScreen(size_, 4);
+                while(!screen_.Done())
+                {
+                try 
+                {  
+                  Thread.sleep(1000);
+                }
+                catch(InterruptedException ex)
+                {
+                  Thread.currentThread().interrupt();
+                }
+              }
+              addGameMenu(size_, isSurvival_);
+              menu_.togglePlay();
+              }
+            }
+          ).start();
         }
       }
      );
@@ -322,85 +544,33 @@ class Multiplexer extends JFrame
     repaint();
   }
 
-  //Display dialog and parse input for int value
-  private int getInt(String message)
+  private void addHuntMinigame(Dimension size)
   {
-    int val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-        return CANCEL;
-      else if(input.isEmpty())
-        return DEFAULT;  
-      val = Integer.parseInt(input);
-    }
-    catch(NumberFormatException e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input integer.", "ERROR",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getInt(message);
-    }
-    if(val < 1)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter an integer x >= 1.", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getInt(message);
-    }
-    return val;
-  }  // private int getInput()
+    hunt_ = new HuntMinigame(size);
+    getContentPane().removeAll();
+    getContentPane().add(hunt_, BorderLayout.CENTER);
+    pack();
+    revalidate();
+    repaint();
+  }
 
-  //Display dialog and parse input for double
-  private double getDbl(String message)
+  private void addMessageScreen(Dimension size, int index)
   {
-    double val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-         return CANCEL; 
-      else if(input.isEmpty())
-        return DEFAULT;
-      val = Double.parseDouble(input);
-    } 
-    catch(NumberFormatException e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input.", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getDbl(message);
-    }
-    return val;
-  }  // private double getDbl();
+    screen_ = new MessageScreen(size, index);
+    getContentPane().removeAll();
+    getContentPane().add(screen_, BorderLayout.CENTER);
+    pack();
+    revalidate();
+    repaint();
+  }
 
-  //Display dialog and parse input for double with min, max
-  private double getDbl(String message, double min, double max)
+  private void resetStats()
   {
-    double val;
-    try
-    {
-      String input = JOptionPane.showInputDialog(message);
-      if(input == null)
-         return CANCEL; 
-      else if(input.isEmpty())
-        return DEFAULT;
-      val = Double.parseDouble(input);
-    } 
-    catch(NumberFormatException e)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input.", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getDbl(message, min, max);
-    }
-    if(val < min || val > max)
-    {
-      JOptionPane.showMessageDialog(this, "Please enter a valid input " + min + 
-                                    " <= x <= " + max + ".", "ERROR!",
-                                    JOptionPane.ERROR_MESSAGE);
-      return getDbl(message, min, max);
-                                    
-    }
-    return val;
-  }  // private double getDbl(); min, max
+    hunger_ = HUNGER;
+    boredom_ = BOREDOM;
+    food_ = 0;
+    intelligence_ = 0;
+  }
 
   private void displayError(String str)
   {
@@ -418,12 +588,16 @@ class Multiplexer extends JFrame
   }
 
   //Save current BufferedImage to .png file
-  private void save()
+  private void screenshot()
   {
     File outputFile = getFile();
+    BufferedImage img = new BufferedImage((int)getWidth(), (int)getHeight(), 
+                                          BufferedImage.TYPE_INT_ARGB);
+    paint(img.getGraphics());
+    
     try
     {
-      javax.imageio.ImageIO.write(cutscene_.getImage(), "png", outputFile);
+      javax.imageio.ImageIO.write(img, "png", outputFile);
     }
     catch (Exception e)
     {

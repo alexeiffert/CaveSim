@@ -15,14 +15,16 @@ import java.awt.geom.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
+import javax.sound.midi.*;
 
 import java.util.Random;
 import java.util.Scanner;
 
 public class Cutscene extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 250;  
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 200;  
 
+  private Sequencer seq_;
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
@@ -43,19 +45,54 @@ public class Cutscene extends JPanel
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
     changeBackground(Color.BLACK);
-    strArr_ = new String[]{"\"The caveman is a stock character", "\"The caveman is a stock character", 
+    strArr_ = new String[]{"", "", "", "", "",
+                           "\"The caveman is a stock character", "\"The caveman is a stock character", 
+                           "\"The caveman is a stock character", "\"The caveman is a stock character", 
+                           "\"The caveman is a stock character", "\"The caveman is a stock character", 
+                           "\"based upon widespread but", "\"based upon widespread but",
+                           "\"based upon widespread but", "\"based upon widespread but",
                            "\"based upon widespread but", "\"based upon widespread but",
                            "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
+                           "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
+                           "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
+                           "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
+                           "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
+                           "\"and", "\"and", 
+                           "\"and", "\"and", 
                            "\"and", "\"and", 
                            "\"CONFLATED", "\"CONFLATED", 
+                           "\"CONFLATED", "\"CONFLATED", 
+                           "\"CONFLATED", "\"CONFLATED", 
+                           "\"CONFLATED", "\"CONFLATED", 
+                           "\"CONFLATED", "\"CONFLATED", 
+                           "\"concepts", "\"concepts", 
+                           "\"concepts", "\"concepts", 
                            "\"concepts", "\"concepts", 
                            "\"of the way in which", "\"of the way in which", 
+                           "\"of the way in which", "\"of the way in which", 
+                           "\"of the way in which", "\"of the way in which", 
+                           "\"Neanderthals,", "\"Neanderthals,",
+                           "\"Neanderthals,", "\"Neanderthals,",
                            "\"Neanderthals,", "\"Neanderthals,",
                            "\"early modern humans,", "\"early modern humans,", 
+                           "\"early modern humans,", "\"early modern humans,", 
+                           "\"early modern humans,", "\"early modern humans,", 
                            "\"and archaic humans", "\"and archaic humans",
-                           "\"may have looked and behaved...", "\"may have looked and behaved...",
+                           "\"and archaic humans", "\"and archaic humans",
+                           "\"and archaic humans", "\"and archaic humans",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
                            "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
-                           "But.. he doesn't care about that.", 
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
+                           "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
+                           "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
+                           "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
                            "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
                            "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim", " CaveSim", "  CaveSim"};
     index_ = x_ = 0;
@@ -102,6 +139,36 @@ public class Cutscene extends JPanel
 
   public boolean togglePlay()
   {
+new Thread(new Runnable(){public void run(){
+        try {
+            seq_ = MidiSystem.getSequencer();
+            seq_.setSequence(MidiSystem.getSequence(new File("ASZ.mid")));
+            seq_.open();
+            seq_.start();
+            while(true) {
+            seq_.setTempoInBPM(100f);
+                if(seq_.isRunning()) {
+                    try {
+                        Thread.sleep(1000); // Check every second
+                    } catch(InterruptedException ignore) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+            // Close the MidiDevice & free resources
+            seq_.stop();
+            seq_.close();
+        } catch(MidiUnavailableException mue) {
+            System.out.println("Midi device unavailable!");
+        } catch(InvalidMidiDataException imde) {
+            System.out.println("Invalid Midi data!");
+        } catch(IOException ioe) {
+            System.out.println("I/O Error!");
+        } 
+}}).start();
+
     isPlay_ = !isPlay_;
     if(isPlay_)
       timer_.restart();

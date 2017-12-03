@@ -24,6 +24,7 @@ public class FireMinigame extends JPanel
   private static final int MILLISECONDS_BETWEEN_FRAMES = 16;  // i.e. ~ 60 fps
 
   //Animation objects
+  private boolean success_;
   private BufferedImage img_;
   private Graphics2D g2d_;
   private Timer timer_;
@@ -38,11 +39,11 @@ public class FireMinigame extends JPanel
 
   public FireMinigame(Dimension size)
   {
-    setFocusable(true);
     setMinimumSize(size);
     setMaximumSize(size);
     setPreferredSize(size);
 
+    success_ = false;
     isPlay_ = isClickable_ = isDone_ = false;
     isKindling_ = false;
     rng_ = new Random();
@@ -218,6 +219,7 @@ public class FireMinigame extends JPanel
             {
               if(rng_.nextDouble() > .9)
               {
+                success_ = false;
                 g2d_.drawImage(fire[4],
                                0, 0, img_.getWidth(), img_.getHeight(),
                                0, 0, fire[4].getWidth(), fire[4].getHeight(),
@@ -225,6 +227,7 @@ public class FireMinigame extends JPanel
               }
               else
               {
+                success_ = true;
                 g2d_.drawImage(fire[3],
                                0, 0, img_.getWidth(), img_.getHeight(),
                                0, 0, fire[3].getWidth(), fire[3].getHeight(),
@@ -234,6 +237,7 @@ public class FireMinigame extends JPanel
             }
             else
             {
+              success_ = false;
               g2d_.drawImage(fire[5],
                              0, 0, img_.getWidth(), img_.getHeight(),
                              0, 0, fire[5].getWidth(), fire[5].getHeight(),
@@ -259,6 +263,11 @@ public class FireMinigame extends JPanel
     );
 
   }  // public FireMinigame(Dimension)
+
+  public boolean success()
+  {
+    return success_;
+  }
 
   public boolean Done()
   {
