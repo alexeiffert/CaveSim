@@ -80,8 +80,11 @@ class Multiplexer extends JFrame
       {
         public void actionPerformed(ActionEvent e)
         {
-          ++boredom_;
-          ++hunger_;
+          if(isSurvival_)
+          {
+            ++boredom_;
+            ++hunger_;
+          }
         }
       });
     timer_.start();
@@ -91,7 +94,6 @@ class Multiplexer extends JFrame
     //Must be called externally so that the GUI doesn't hang
   public void startCaveSim()
   {
-/*
     this.addCutscene(size_);
     cutscene_.togglePlay();
     while(!cutscene_.Done())
@@ -108,7 +110,6 @@ class Multiplexer extends JFrame
     this.remove(cutscene_);
     revalidate();
     repaint();
-*/
     this.addGameMenu(size_, isSurvival_);
     menu_.togglePlay();
     while(true)
@@ -190,7 +191,8 @@ class Multiplexer extends JFrame
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
         }
-      }
+      }  //if Survival Mode only
+
       switch(menu_.getSelection())
       {
         case 0:  // No selection
@@ -207,10 +209,13 @@ class Multiplexer extends JFrame
         }
         case 1:  // Fish minigame
         {
-          ++boredom_;
-          //food_ += fish_.getScore();
-          //if(fish_.getScore() > 5)
+          if(isSurvival_)
+          {
+            ++boredom_;
+            //food_ += fish_.getScore();
+            //if(fish_.getScore() > 5)
             ++intelligence_;
+          }
           break;
         }
         case 2:  // Hunt minigame
@@ -228,10 +233,13 @@ class Multiplexer extends JFrame
               Thread.currentThread().interrupt();
             }
           }
-          ++boredom_;
-          food_ += hunt_.getScore();
-          if(hunt_.getScore() > 5)
-            ++intelligence_;
+          if(isSurvival_)
+          {
+            ++boredom_;
+            food_ += hunt_.getScore();
+            if(hunt_.getScore() > 5)
+              ++intelligence_;
+          }
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
           break;
@@ -251,18 +259,21 @@ class Multiplexer extends JFrame
               Thread.currentThread().interrupt();
             }
           }
-          if(fire_.success())
+          if(isSurvival_)
           {
-            --boredom_;
-            hunger_ -= food_;
-            food_ = 0;
-            ++intelligence_;
-          }
-          else
-          {
-            --food_;
-            ++hunger_;
-            --intelligence_;
+            if(fire_.success())
+            {
+              --boredom_;
+              hunger_ -= food_;
+              food_ = 0;
+              ++intelligence_;
+            }
+            else
+            {
+              --food_;
+              ++hunger_;
+              --intelligence_;
+            }
           }
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
@@ -283,9 +294,12 @@ class Multiplexer extends JFrame
              Thread.currentThread().interrupt();
             }
           }
-          --boredom_;
-          ++hunger_;
-          intelligence_ += paint_.getScore();
+          if(isSurvival_)
+          {
+            --boredom_;
+            ++hunger_;
+            intelligence_ += paint_.getScore();
+          } 
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
           break;

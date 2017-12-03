@@ -21,6 +21,8 @@ select any of the options from the main menu.
 # Screenshots/
 
 The Screenshots/ directory holds screenshots taken during the game.
+The Screenshots/demo directory holds demo screenshots taken to demonstrate
+gameplay.
 
 # SavedGames/
 
