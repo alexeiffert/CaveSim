@@ -57,27 +57,13 @@ public class Cutscene extends JPanel
                            "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
                            "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
                            "\"ANACHRONISTIC", "\"ANACHRONISTIC",  
-                           "\"and", "\"and", 
-                           "\"and", "\"and", 
-                           "\"and", "\"and", 
-                           "\"CONFLATED", "\"CONFLATED", 
-                           "\"CONFLATED", "\"CONFLATED", 
-                           "\"CONFLATED", "\"CONFLATED", 
-                           "\"CONFLATED", "\"CONFLATED", 
-                           "\"CONFLATED", "\"CONFLATED", 
-                           "\"concepts", "\"concepts", 
-                           "\"concepts", "\"concepts", 
-                           "\"concepts", "\"concepts", 
-                           "\"of the way in which", "\"of the way in which", 
-                           "\"of the way in which", "\"of the way in which", 
-                           "\"of the way in which", "\"of the way in which", 
-                           "\"Neanderthals,", "\"Neanderthals,",
+                           "\"concepts of the way in which", "\"concepts of the way in which", 
+                           "\"concepts of the way in which", "\"concepts of the way in which", 
+                           "\"concepts of the way in which", "\"concepts of the way in which", 
                            "\"Neanderthals,", "\"Neanderthals,",
                            "\"Neanderthals,", "\"Neanderthals,",
                            "\"early modern humans,", "\"early modern humans,", 
                            "\"early modern humans,", "\"early modern humans,", 
-                           "\"early modern humans,", "\"early modern humans,", 
-                           "\"and archaic humans", "\"and archaic humans",
                            "\"and archaic humans", "\"and archaic humans",
                            "\"and archaic humans", "\"and archaic humans",
                            "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
@@ -85,6 +71,10 @@ public class Cutscene extends JPanel
                            "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
                            "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
                            "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "\"may have looked and behaved...\"", "\"may have looked and behaved...\"",
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
+                           "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
                            "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
                            "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
                            "But.. he doesn't care about that.", "But.. he doesn't care about that.", 
@@ -94,15 +84,22 @@ public class Cutscene extends JPanel
                            "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
                            "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
                            "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
-                           "m", "im", "Sim", "eSim", "veSim", "aveSim", "CaveSim", " CaveSim", "  CaveSim"};
+                           "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
+                           "Now, YOU are the caveman.", "Now, YOU are the caveman.", 
+                           "m", "im", "Sim", "eSim", "veSim", "aveSim", 
+                           "CaveSim", " CaveSim", "  CaveSim", "   CaveSim", "    CaveSim",
+                           "     CaveSim", "      CaveSim", "       CaveSim", "       CaveSim"};
     index_ = x_ = 0;
     isDraw_ = isPlay_ = isDone_ = false;
+
+    //Skip cutscene
     addMouseListener
     (
       new MouseAdapter()
       {
-        public void mouseReleased(MouseEvent e)  // A better choice than mouseClicked
+        public void mouseClicked(MouseEvent e) 
         {
+          isDone_ = true;
         }
       }
     );
