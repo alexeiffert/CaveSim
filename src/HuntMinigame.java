@@ -31,6 +31,7 @@ public class HuntMinigame extends JPanel
   private int score_;
 
   //Game variables
+  private BufferedImage[] hunt_;
   private Random rng_;
   private MouseAdapter oldMA_;
   private MouseMotionAdapter oldMMA_;
@@ -57,58 +58,11 @@ public class HuntMinigame extends JPanel
     g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                           RenderingHints.VALUE_ANTIALIAS_ON);
 
-    //Images array
-    BufferedImage hunt[] = new BufferedImage[15];
-    try
-    {
-      hunt[0] = ImageIO.read(new File("img/forest.png"));
-      hunt[1] = ImageIO.read(new File("img/bobcat1.png"));
-      hunt[2] = ImageIO.read(new File("img/bobcat2.png"));
-      hunt[3] = ImageIO.read(new File("img/lynx1.png"));
-      hunt[4] = ImageIO.read(new File("img/lynx1.png"));
-      hunt[5] = ImageIO.read(new File("img/mouse1.png"));
-      hunt[6] = ImageIO.read(new File("img/mouse2.png"));
-      hunt[7] = ImageIO.read(new File("img/possum1.png"));
-      hunt[8] = ImageIO.read(new File("img/possum2.png"));
-      hunt[9] = ImageIO.read(new File("img/racoon1.png"));
-      hunt[10] = ImageIO.read(new File("img/racoon2.png"));
-      hunt[11] = ImageIO.read(new File("img/squirrel1.png"));
-      hunt[12] = ImageIO.read(new File("img/squirrel2.png"));
-      hunt[13] = ImageIO.read(new File("img/woodchuck1.png"));
-      hunt[14] = ImageIO.read(new File("img/woodchuck2.png"));
-    }
-    catch(IOException e)
-    {
-      System.out.println("ERROR: Image(s) missing from img/ directory");
-      System.exit(-1);
-    }
-/*
-    g2d_.drawImage(hunt[0],
-                   0, 0, img_.getWidth(), img_.getHeight(),
-                   0, 0, hunt[0].getWidth(), hunt[0].getHeight(),
-                   Color.BLACK, null);
-*/
-g2d_.setColor(new Color(0, true));
-g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
-setImage();
+    //Initialize hunt_[] images array on new thread
+    initHunt();
 
-    addMouseListener
-    (
-      new MouseAdapter()
-      {
-        public void mousePressed(MouseEvent e)
-        {
-          if(e.getButton() == MouseEvent.BUTTON1)  // LMB
-          {
-          } 
-        }
-       
-        public void mouseReleased(MouseEvent e)
-        {
-          ///if(isClickable_)
-        }
-      }
-    );
+    changeBackground(Color.BLACK);
+    repaint();
 
     addMouseMotionListener
     (
@@ -128,17 +82,16 @@ setImage();
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          g2d_.setColor(new Color(0xFF000000, true));
-          g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+          changeBackground(Color.BLACK);
           g2d_.setColor(Color.WHITE);
           g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 150));
           g2d_.drawString("Score: " + points_, 50, 200);
           int startX = rng_.nextInt(img_.getWidth() - 51);
           int startY = rng_.nextInt(img_.getHeight()/2 - 51) + img_.getHeight()/2;
           int index = rng_.nextInt(14) + 1;
-          g2d_.drawImage(hunt[index],
+          g2d_.drawImage(hunt_[index],
                          startX, startY, (startX + 50), (startY + 50),
-                         0, 0, hunt[index].getWidth(), hunt[index].getHeight(),
+                         0, 0, hunt_[index].getWidth(), hunt_[index].getHeight(),
                          Color.BLACK, null);
           
           //Dynamically create mouse adapters
@@ -151,12 +104,11 @@ setImage();
                   ++points_;
                 else
                   --points_;
-                g2d_.setColor(new Color(0xFF000000, true));
-                g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+                changeBackground(Color.BLACK);
                 g2d_.setColor(Color.WHITE);
                 g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 150));
                 g2d_.drawString("Score: " + points_, 50, 200);
-                setImage();
+                repaint();
               }
             };
           MouseMotionAdapter MMA = new MouseMotionAdapter()
@@ -173,15 +125,16 @@ setImage();
           removeMouseListener(oldMA_);
           removeMouseMotionListener(oldMMA_);
               
-          setImage();
+          repaint();
           if(--time_ == 0)
           {
-            score_ = points_/5;
-            g2d_.setColor(new Color(0xFF000000, true));
-            g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+            score_ = points_/3;
+            if(score_ < 0)
+              score_ = 0;
+            changeBackground(Color.BLACK);
             g2d_.setColor(Color.WHITE);
             g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 50));
-            g2d_.drawString("You caught " + points_/5 + " critters.", 
+            g2d_.drawString("You caught " + score_ + " critters.", 
                              0, img_.getHeight()/2);
             if(points_ < 4) 
               g2d_.drawString("Try to do better next time.", 0, img_.getHeight()/2 + 60);
@@ -241,23 +194,48 @@ setImage();
     return img_;
   }
   
-  //setImage() is always sent to EDT
-  public void setImage()
+  private void initHunt()
   {
-    SwingUtilities.invokeLater
+    new Thread
     (
       new Runnable()
       {
         public void run()
         {
-          g2d_.drawImage(img_,
-                         0, 0, img_.getWidth(), img_.getHeight(),
-                         0, 0, img_.getWidth(), img_.getHeight(),
-                         Color.BLACK, null);
-          repaint();
+          hunt_ = new BufferedImage[15];
+          try
+          {
+            hunt_[0] = ImageIO.read(new File("img/forest.png"));
+            hunt_[1] = ImageIO.read(new File("img/bobcat1.png"));
+            hunt_[2] = ImageIO.read(new File("img/bobcat2.png"));
+            hunt_[3] = ImageIO.read(new File("img/lynx1.png"));
+            hunt_[4] = ImageIO.read(new File("img/lynx1.png"));
+            hunt_[5] = ImageIO.read(new File("img/mouse1.png"));
+            hunt_[6] = ImageIO.read(new File("img/mouse2.png"));
+            hunt_[7] = ImageIO.read(new File("img/possum1.png"));
+            hunt_[8] = ImageIO.read(new File("img/possum2.png"));
+            hunt_[9] = ImageIO.read(new File("img/racoon1.png"));
+            hunt_[10] = ImageIO.read(new File("img/racoon2.png"));
+            hunt_[11] = ImageIO.read(new File("img/squirrel1.png"));
+            hunt_[12] = ImageIO.read(new File("img/squirrel2.png"));
+            hunt_[13] = ImageIO.read(new File("img/woodchuck1.png"));
+            hunt_[14] = ImageIO.read(new File("img/woodchuck2.png"));
+          }
+          catch(IOException e)
+          {
+            System.out.println("ERROR: Image(s) missing from img/ directory");
+            System.exit(-1);
+          }
         }
       }
-    );
+    ).start();
+  }  // private void initHunt()
+
+  private void changeBackground(Color color)
+  {
+    g2d_.setColor(color);
+    g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+    repaint();
   }
   
   public void paintComponent(Graphics g)  // Class override

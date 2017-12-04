@@ -38,7 +38,7 @@ public class CaveSim
       {
         public void run()
         {
-          Multiplexer multiplex = createGUI();
+          Multiplexer mplx = createGUI();
         }
       }
     );
@@ -48,21 +48,21 @@ public class CaveSim
   {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     screenSize.setSize(screenSize.getWidth()/2, screenSize.getHeight()/2);
-    Multiplexer multiplex = new Multiplexer(screenSize);
-    multiplex.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    multiplex.setVisible(true);
-    multiplex.setResizable(false);
+    Multiplexer mplx = new Multiplexer(screenSize);
+    mplx.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    mplx.setVisible(true);
+    mplx.setResizable(false);
     new Thread
     (
       new Runnable()
       {
         public void run()
         {
-          multiplex.startCaveSim();
+          mplx.startCaveSim();
         }
       }
     ).start();
-    return multiplex;
+    return mplx;
   }
 }  // class CaveSim 
 

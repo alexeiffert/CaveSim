@@ -22,6 +22,7 @@ public class PaintMinigame extends JPanel
 {
   private static final int MILLISECONDS_BETWEEN_FRAMES = 1000;
   private static final int TIME = 20;
+  private static final int COLOR = 0xFFFF6A33;
 
   //Main animation variables
   private BufferedImage img_;  //Display img
@@ -30,9 +31,9 @@ public class PaintMinigame extends JPanel
   private boolean isPlay_, isClickable_, isDone_; 
   private int score_;
 
-  //Game variables
+  //Game objects 
   private BufferedImage compare_[];  //Comparison drawings
-  private BufferedImage cave_[];  //For simplicity, all drawings are loaded
+  private BufferedImage cave_[];  
   private int time_, index_;
   private Point prev_;
   private boolean isDraw_, canDraw_;
@@ -45,55 +46,30 @@ public class PaintMinigame extends JPanel
     setPreferredSize(size);
     setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-    //Initialize data members & visual components
-    score_ = 0;
-    time_ = TIME;
-    index_ = 0;
-    prev_ = null;
-    canDraw_ = true;  //Master flag
-    isPlay_ = isClickable_ = isDraw_ = false;
-    index_ = (new Random()).nextInt(3)*2 + 2;  //Choose random image to draw
+    //Initialize img_ and both G2d's
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
     g2d_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g2d2_ = (Graphics2D)img_.createGraphics();
     g2d2_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g2d2_.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-    g2d2_.setColor(new Color(0xFFFF6A33));
-    cave_ = new BufferedImage[7];
-    try
-    {
-      cave_[0] = ImageIO.read(new File("img/cave.png"));
-      cave_[1] = ImageIO.read(new File("img/cave11.png"));
-      cave_[2] = ImageIO.read(new File("img/cave12.png"));
-      cave_[3] = ImageIO.read(new File("img/cave21.png"));
-      cave_[4] = ImageIO.read(new File("img/cave22.png"));
-      cave_[5] = ImageIO.read(new File("img/cave31.png"));
-      cave_[6] = ImageIO.read(new File("img/cave32.png"));
-    }
-    catch(IOException e)
-    {
-      System.out.println("ERROR: Image(s) missing from img/ directory");
-      System.exit(-1);
-    }
+    g2d2_.setColor(new Color(COLOR));
+
+    //Initializes cave drawings array on new thread
+    initCave();
+
+    //Initialize data members & visual components
+    score_ = 0;
+    time_ = TIME;
+    canDraw_ = true;  //Master flag
+    isPlay_ = isClickable_ = isDraw_ = false;
+    index_ = (new Random()).nextInt(3)*2 + 2;  //Choose random image to draw
+    prev_ = null;
 
     //Resize comparison images and store in compare_[] (not displayed)
-    compare_ = new BufferedImage[2];
-    compare_[0] = new BufferedImage(img_.getWidth(), img_.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    compare_[1] = new BufferedImage(img_.getWidth(), img_.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    Graphics2D cg2d = (Graphics2D)compare_[0].createGraphics();
-    cg2d.drawImage(cave_[index_ - 1],
-                   0, 0, img_.getWidth(), img_.getHeight(),
-                   0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
-                   Color.BLACK, null);
-    cg2d = (Graphics2D)compare_[1].createGraphics();
-    cg2d.drawImage(cave_[index_],
-                   0, 0, img_.getWidth(), img_.getHeight(),
-                   0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
-                   Color.BLACK, null);
-     cg2d.dispose();
+    resizeCompare();
     
-    //Draw display image & graphical timer
+    //Draw display image & init graphical timer
     g2d_.drawImage(cave_[index_ - 1],
                    0, 0, img_.getWidth(), img_.getHeight(),
                    0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
@@ -115,7 +91,7 @@ public class PaintMinigame extends JPanel
           {
             prev_ = e.getPoint();
             g2d2_.fill(new Ellipse2D.Double(prev_.x - 5, prev_.y - 5, 10, 10));
-            setImage();
+            repaint();
             isDraw_ = true;
           } 
         }
@@ -142,7 +118,7 @@ public class PaintMinigame extends JPanel
           {
             g2d2_.draw(new Line2D.Double(prev_.x, prev_.y, p.x, p.y));
             prev_ = p;
-            setImage();
+            repaint();
           }
         }
       }
@@ -157,12 +133,14 @@ public class PaintMinigame extends JPanel
           g2d_.drawString(time_ + "", 150, 200);
           g2d_.drawString(--time_ + "", 150, 200);
           g2d_.setPaintMode();
-          setImage();
+          repaint();
           if(time_ == 0)
           {
             canDraw_ = isDraw_ = false;
             isClickable_ = true;
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+            //Create new thread to score and show results
             new Thread
             (
               new Runnable()
@@ -177,6 +155,7 @@ public class PaintMinigame extends JPanel
                     {
                       public void run()
                       {
+                        //Save image for screenshot
                         BufferedImage ss = new BufferedImage(img_.getWidth(), img_.getHeight(), 
                                                              BufferedImage.TYPE_INT_ARGB);
                         Graphics2D g = (Graphics2D)ss.createGraphics();
@@ -185,6 +164,7 @@ public class PaintMinigame extends JPanel
                                        0, 0, img_.getWidth(), img_.getHeight(),
                                        Color.BLACK, null);
                         g.dispose();
+
                         g2d_.drawImage(cave_[index_],
                                        0, 0, img_.getWidth(), img_.getHeight(),
                                        0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
@@ -217,13 +197,13 @@ public class PaintMinigame extends JPanel
                           }
                         }
                         g2d_.drawString("[Click anywhere to continue]", 0, img_.getHeight()/2 + 120);
-                        setImage();
+                        repaint();
                       }
                     }
-                  );
+                  );  // SwingUtilities.InvokeLater()
                 }
               }
-            ).start();
+            ).start();  // new Thread
           }
           else
             timer_.restart();
@@ -266,16 +246,16 @@ public class PaintMinigame extends JPanel
     {
       for(int j = 0; j < img_.getHeight() - 1; ++j)
       {
-        if(compare_[1].getRGB(i, j) == 0xFFFF6A33)
+        if(compare_[1].getRGB(i, j) == COLOR)
         {
-          if(compare_[0].getRGB(i, j) != 0xFFFF6A33)
+          if(compare_[0].getRGB(i, j) != COLOR)
           {
             ++count;
-            if(img_.getRGB(i, j) == 0xFFFF6A33)
+            if(img_.getRGB(i, j) == COLOR)
               ++correct;
           }
         }
-        else if(img_.getRGB(i, j) == 0xFFFF6A33)
+        else if(img_.getRGB(i, j) == COLOR)
           ++incorrect;
       }
     }
@@ -285,25 +265,45 @@ public class PaintMinigame extends JPanel
     return correct/count; 
   }  // private double compare()
 
-  //setImage() is always sent to EDT
-  public void setImage()
+  public void resizeCompare()
   {
-    SwingUtilities.invokeLater
-    (
-      new Runnable()
-      {
-        public void run()
-        {
-          g2d_.drawImage(img_,
-                         0, 0, img_.getWidth(), img_.getHeight(),
-                         0, 0, img_.getWidth(), img_.getHeight(),
-                         Color.BLACK, null);
-          repaint();
-        }
-      }
-    );
+    compare_ = new BufferedImage[2];
+    compare_[0] = new BufferedImage(img_.getWidth(), img_.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    compare_[1] = new BufferedImage(img_.getWidth(), img_.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    Graphics2D cg2d = (Graphics2D)compare_[0].createGraphics();
+    cg2d.drawImage(cave_[index_ - 1],
+                   0, 0, img_.getWidth(), img_.getHeight(),
+                   0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
+                   Color.BLACK, null);
+    cg2d = (Graphics2D)compare_[1].createGraphics();
+    cg2d.drawImage(cave_[index_],
+                   0, 0, img_.getWidth(), img_.getHeight(),
+                   0, 0, cave_[0].getWidth(), cave_[0].getHeight(),
+                   Color.BLACK, null);
+     cg2d.dispose();
   }
-  
+
+  //Loads images in new thread
+  public void initCave()
+  {
+    cave_ = new BufferedImage[7];
+    try
+    {
+      cave_[0] = ImageIO.read(new File("img/cave.png"));
+      cave_[1] = ImageIO.read(new File("img/cave11.png"));
+      cave_[2] = ImageIO.read(new File("img/cave12.png"));
+      cave_[3] = ImageIO.read(new File("img/cave21.png"));
+      cave_[4] = ImageIO.read(new File("img/cave22.png"));
+      cave_[5] = ImageIO.read(new File("img/cave31.png"));
+      cave_[6] = ImageIO.read(new File("img/cave32.png"));
+    }
+    catch(IOException e)
+    {
+      System.out.println("ERROR: Image(s) missing from img/ directory");
+      System.exit(-1);
+    }
+  }
+
   public void paintComponent(Graphics g)  // Class override
   {
     super.paintComponent(g);

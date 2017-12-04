@@ -205,7 +205,7 @@ public class Menu extends JPanel
           g2d_.setXORMode(colorArr_[99 - index_]);
           g2d_.drawString(strArr_[index_/10], 50, 100);
           g2d_.setPaintMode();
-          setImage();
+          repaint();
           timer_.restart();
           if(index_ == colorArr_.length - 1)
           {
@@ -287,7 +287,7 @@ public class Menu extends JPanel
                    0, 0, img_.getWidth(), img_.getHeight(),
                    0, 0, homeImg.getWidth(), homeImg.getHeight(),
                    Color.BLACK, null);
-    setImage();
+    repaint();
   }
 
   //Updates img_ to the sanbox menu
@@ -357,25 +357,6 @@ public class Menu extends JPanel
     return img_;
   }
 
-  //setImage() is always sent to EDT
-  public void setImage()
-  {
-    SwingUtilities.invokeLater
-    (
-      new Runnable()
-      {
-        public void run()
-        {
-          g2d_.drawImage(img_,
-                         0, 0, img_.getWidth(), img_.getHeight(),
-                         0, 0, img_.getWidth(), img_.getHeight(),
-                         Color.BLACK, null);
-          repaint();
-        }
-      }
-    );
-  }
-  
   public void paintComponent(Graphics g)  // Class override
   {
     super.paintComponent(g);
