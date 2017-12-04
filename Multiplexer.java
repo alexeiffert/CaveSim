@@ -24,7 +24,6 @@ import java.util.Scanner;
 class Multiplexer extends JFrame
 {
   //Constants
-  private static final int CANCEL = -123456, DEFAULT = -654321;
   private static final int TIMER = 120000;  // 2 minutes, ++hunger, ++boredom
   private static final int HUNGER = 5;
   private static final int BOREDOM = 5;
@@ -41,6 +40,7 @@ class Multiplexer extends JFrame
   private FireMinigame fire_;
   private PaintMinigame paint_;
   private HuntMinigame hunt_;
+  private FishMinigame fish_;
   private MessageScreen screen_;
 
   //Constructor
@@ -74,6 +74,8 @@ class Multiplexer extends JFrame
     fire_ = null;
     paint_ = null;
     hunt_ = null;
+    fish_ = null;
+    screen_ = null;
 
     //Attrition timer
     timer_ = new Timer(TIMER, new ActionListener()
@@ -88,10 +90,10 @@ class Multiplexer extends JFrame
         }
       });
     timer_.start();
-  }
+  }  // public Multiplexer(Dimension)
 
-    //Plays cutscene and starts the main game infinite loop
-    //Must be called externally so that the GUI doesn't hang
+  //Plays cutscene and starts the main game infinite loop
+  //Must be called externally so that the GUI doesn't hang
   public void startCaveSim()
   {
     this.addCutscene(size_);
@@ -107,15 +109,13 @@ class Multiplexer extends JFrame
         Thread.currentThread().interrupt();
       }
     }
-    this.remove(cutscene_);
-    revalidate();
-    repaint();
     this.addGameMenu(size_, isSurvival_);
     menu_.togglePlay();
     while(true)
     {
       if(isSurvival_)
       {
+        //Clamp all values and write stats
         if(food_ > 5)
           food_ = 5;
         else if(food_ < 0)
@@ -136,7 +136,7 @@ class Multiplexer extends JFrame
         repaint();
         if(hunger_ >= 10)
         {
-          addMessageScreen(size_, 0);
+          addMessageScreen(size_, 0);  //Died of starvation
           while(!screen_.Done())
           {
             try 
@@ -153,7 +153,7 @@ class Multiplexer extends JFrame
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
         }
-        else if(boredom_ >= 10)
+        else if(boredom_ >= 10)  //Died of boredom
         {
           addMessageScreen(size_, 1);
           while(!screen_.Done())
@@ -172,7 +172,7 @@ class Multiplexer extends JFrame
           this.addGameMenu(size_, isSurvival_);
           menu_.togglePlay();
         }
-        else if(intelligence_ >= 5)
+        else if(intelligence_ >= 5)  //Win
         {
           addMessageScreen(size_, 2);
           while(!screen_.Done())
@@ -209,13 +209,28 @@ class Multiplexer extends JFrame
         }
         case 1:  // Fish minigame
         {
+          this.addFishMinigame(size_);
+          fish_.togglePlay();
+          while(!fish_.Done())
+          {
+            try 
+            {  
+              Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+              Thread.currentThread().interrupt();
+            }
+          }
           if(isSurvival_)
           {
             ++boredom_;
-            //food_ += fish_.getScore();
-            //if(fish_.getScore() > 5)
-            ++intelligence_;
+            food_ += fish_.getScore();
+            if(fish_.getScore() > 3)
+              ++intelligence_;
           }
+          this.addGameMenu(size_, isSurvival_);
+          menu_.togglePlay();
           break;
         }
         case 2:  // Hunt minigame
@@ -237,7 +252,7 @@ class Multiplexer extends JFrame
           {
             ++boredom_;
             food_ += hunt_.getScore();
-            if(hunt_.getScore() > 5)
+            if(hunt_.getScore() > 4)
               ++intelligence_;
           }
           this.addGameMenu(size_, isSurvival_);
@@ -550,6 +565,18 @@ class Multiplexer extends JFrame
     getContentPane().removeAll();
     getContentPane().add(hunt_, BorderLayout.CENTER);
     pack();
+    revalidate();
+    repaint();
+  }
+
+  private void addFishMinigame(Dimension size)
+  {
+    fish_ = new FishMinigame(size);
+    getContentPane().removeAll();
+    getContentPane().add(fish_, BorderLayout.CENTER);
+    pack();
+    fish_.setFocusable(true); 
+    fish_.requestFocus();
     revalidate();
     repaint();
   }
