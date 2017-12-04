@@ -22,7 +22,7 @@ import java.util.Scanner;
 
 public class Cutscene extends JPanel
 {
-  private static final int MILLISECONDS_BETWEEN_FRAMES = 200;  
+  private static final int MILLISECONDS_BETWEEN_FRAMES = 400;  
 
   private Sequencer seq_;
   private BufferedImage img_;
@@ -41,10 +41,17 @@ public class Cutscene extends JPanel
     setMaximumSize(size);
     setPreferredSize(size);
 
+    isDraw_ = isPlay_ = isDone_ = false;
+
     img_ = new BufferedImage((int)size.getWidth(), (int)size.getHeight(), 
                              BufferedImage.TYPE_INT_ARGB);
     g2d_ = (Graphics2D)img_.createGraphics();
     changeBackground(Color.BLACK);
+  
+    //The below array seems preposterous, but it turned out to be the easiest
+    //way to control each element's screen time as well as implement
+    //the vintage scrolling effect.
+    index_ = 0;
     strArr_ = new String[]{"", "", "", "", "",
                            "\"The caveman is a stock character", "\"The caveman is a stock character", 
                            "\"The caveman is a stock character", "\"The caveman is a stock character", 
@@ -89,8 +96,9 @@ public class Cutscene extends JPanel
                            "m", "im", "Sim", "eSim", "veSim", "aveSim", 
                            "CaveSim", " CaveSim", "  CaveSim", "   CaveSim", "    CaveSim",
                            "     CaveSim", "      CaveSim", "       CaveSim", "       CaveSim"};
-    index_ = x_ = 0;
-    isDraw_ = isPlay_ = isDone_ = false;
+    //Initialize XORMode
+    dispText();
+    --index_;
 
     //Skip cutscene
     addMouseListener
@@ -99,7 +107,21 @@ public class Cutscene extends JPanel
       {
         public void mouseClicked(MouseEvent e) 
         {
+          timer_.stop();
           isDone_ = true;
+          stopAlsoSprachZarathustra();
+        }
+      }
+    );
+    addKeyListener
+    (
+      new KeyAdapter()
+      {
+        public void keyPressed(KeyEvent e)
+        {
+          timer_.stop();
+          isDone_ = true;
+          stopAlsoSprachZarathustra();
         }
       }
     );
@@ -109,25 +131,20 @@ public class Cutscene extends JPanel
         public void actionPerformed(ActionEvent e)
         {
           timer_.stop();
-          if(toggleDraw())
-          {
-            dispText();
-            setImage();
-          }
-          else
-          {
-            errText();
-          }
-          timer_.restart();
-          if(index_ == strArr_.length)
+          errText();
+          dispText();
+          repaint();
+          if(index_ == strArr_.length - 1)
           {
             timer_.stop();
             isDone_ = true;
           }
+          else
+            timer_.restart();
         }
       }
     );  // new Timer
-  }  // public FractalSelectPanel(int, int)
+  }  // public Cutscene(Dimension) 
 
   public boolean Done()
   {
@@ -136,61 +153,20 @@ public class Cutscene extends JPanel
 
   public boolean togglePlay()
   {
-new Thread(new Runnable(){public void run(){
-        try {
-            seq_ = MidiSystem.getSequencer();
-            seq_.setSequence(MidiSystem.getSequence(new File("ASZ.mid")));
-            seq_.open();
-            seq_.start();
-            while(true) {
-            seq_.setTempoInBPM(100f);
-                if(seq_.isRunning()) {
-                    try {
-                        Thread.sleep(1000); // Check every second
-                    } catch(InterruptedException ignore) {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-            // Close the MidiDevice & free resources
-            seq_.stop();
-            seq_.close();
-        } catch(MidiUnavailableException mue) {
-            System.out.println("Midi device unavailable!");
-        } catch(InvalidMidiDataException imde) {
-            System.out.println("Invalid Midi data!");
-        } catch(IOException ioe) {
-            System.out.println("I/O Error!");
-        } 
-}}).start();
-
+    AlsoSprachZarathustra();
     isPlay_ = !isPlay_;
     if(isPlay_)
       timer_.restart();
     else
       timer_.stop();
     return isPlay_;
-  }
-
-  private boolean toggleDraw()
-  {
-    isDraw_ = !isDraw_;
-    return isDraw_;
-  }
-
-  private void changeBackground(Color color)
-  {
-    g2d_.setColor(color);
-    g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
-  }
+  }  //TogglePlay
 
   private void dispText()
   {
     g2d_.setXORMode(Color.WHITE);
     g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 75 ));
-    g2d_.drawString(strArr_[index_], x_, img_.getHeight()/2);
+    g2d_.drawString(strArr_[++index_], 0, img_.getHeight()/2);
     g2d_.setPaintMode();
   }
 
@@ -198,44 +174,83 @@ new Thread(new Runnable(){public void run(){
   {
     g2d_.setXORMode(Color.WHITE);
     g2d_.setFont(new Font(Font.SERIF, Font.BOLD, 75));
-    g2d_.drawString(strArr_[index_++], x_, img_.getHeight()/2);
+    g2d_.drawString(strArr_[index_], 0, img_.getHeight()/2);
     g2d_.setPaintMode();
   }
 
-  public BufferedImage getImage()
+  private void changeBackground(Color color)
   {
-    return img_;
+    g2d_.setColor(color);
+    g2d_.fillRect(0, 0, img_.getWidth(), img_.getHeight());
+    repaint();
   }
 
-  private void close()
+  //Opens and plays ASZ.mid on new thread
+  public void AlsoSprachZarathustra()
   {
-    img_ = null;
-    timer_.stop();
-  }
-  
-  //setImage() is always sent to EDT
-  public void setImage()
-  {
-    SwingUtilities.invokeLater
+    new Thread 
     (
       new Runnable()
       {
         public void run()
         {
-          g2d_.drawImage(img_,
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                         0, 0, (img_.getWidth() - 1), (img_.getHeight() - 1),
-                         Color.BLACK, null);
-          repaint();
+          try 
+          {
+            seq_ = MidiSystem.getSequencer();
+            seq_.setSequence(MidiSystem.getSequence(new File("audio/ASZ.mid")));
+            seq_.open();
+            seq_.start();
+            while(true) 
+            {
+              seq_.setTempoInBPM(100f);
+              if(seq_.isRunning()) 
+              {
+                try 
+                {
+                  Thread.sleep(1000); // Check every second
+                } 
+                  catch(InterruptedException ignore) 
+                {
+                  break;
+                }
+              }
+              else 
+              {
+                break;
+              }
+            }
+            seq_.stop();
+            seq_.close();
+          } 
+          catch(Exception e)
+          {
+            //This will output after stopping the cutscene... 
+            //I am not sure how to fix, though.
+            System.out.println("ERROR: Midi file is missing");
+          } 
         }
       }
-    );
+    ).start();
   }
-  
+
+  public void stopAlsoSprachZarathustra()
+  {
+    try 
+    {
+      seq_.stop();
+      seq_.close();
+    } 
+    catch(Exception e)
+    {
+      System.out.println("ERROR: Problem stopping midi file");
+    } 
+  }
+
   public void paintComponent(Graphics g)  // Class override
   {
     super.paintComponent(g);
     g.drawImage(img_, 0, 0, null);
   }
 
-}  // class ClickPanel
+}  // class Cutscene 
+
